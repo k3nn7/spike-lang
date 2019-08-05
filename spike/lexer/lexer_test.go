@@ -7,7 +7,7 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-func Test_Lexer(t *testing.T) {
+func Test_Lexer_code_sample(t *testing.T) {
 	// given
 	input := strings.NewReader(" let variable = (10 + 20) * 5 ")
 	expectedTokens := []Token{
@@ -21,6 +21,23 @@ func Test_Lexer(t *testing.T) {
 		{RightParenthesis, ")"},
 		{Asterisk, "*"},
 		{Integer, "5"},
+	}
+
+	lexer := NewLexer(input)
+
+	// when
+	tokens, err := iteratorToSlice(lexer)
+
+	// then
+	assert.NoError(t, err)
+	assert.Exactly(t, expectedTokens, tokens)
+}
+
+func Test_Lexer_invalidToken(t *testing.T) {
+	// given
+	input := strings.NewReader("!")
+	expectedTokens := []Token{
+		{Invalid, "!"},
 	}
 
 	lexer := NewLexer(input)

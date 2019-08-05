@@ -52,7 +52,8 @@ func (lexer *Lexer) readNextToken() (Token, error) {
 		return *integer, nil
 	}
 
-	return Token{}, nil
+	invalidToken, err := lexer.reader.ReadByte()
+	return Token{Invalid, string(invalidToken)}, err
 }
 
 func (lexer *Lexer) skipWhitespace() error {

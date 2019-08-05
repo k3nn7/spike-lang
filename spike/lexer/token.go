@@ -36,6 +36,7 @@ var keywords = map[string]TokenType{
 // Other
 const (
 	Eof        TokenType = "eof"
+	Invalid    TokenType = "invalid"
 	Identifier TokenType = "identifier"
 	Integer    TokenType = "integer"
 )
