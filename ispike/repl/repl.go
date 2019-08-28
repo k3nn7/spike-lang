@@ -19,7 +19,7 @@ func Start(in io.Reader, out io.Writer) {
 			return
 		}
 
-		l := lexer.NewLexer(strings.NewReader(scanner.Text()))
+		l := lexer.New(strings.NewReader(scanner.Text()))
 
 		for token, err := l.NextToken(); token.Type != lexer.Eof; token, err = l.NextToken() {
 			if err != nil {

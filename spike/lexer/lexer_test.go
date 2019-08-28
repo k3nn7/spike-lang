@@ -23,7 +23,7 @@ func Test_Lexer_code_sample(t *testing.T) {
 		{Integer, "5"},
 	}
 
-	lexer := NewLexer(input)
+	lexer := New(input)
 
 	// when
 	tokens, err := iteratorToSlice(lexer)
@@ -40,7 +40,7 @@ func Test_Lexer_invalidToken(t *testing.T) {
 		{Invalid, "!"},
 	}
 
-	lexer := NewLexer(input)
+	lexer := New(input)
 
 	// when
 	tokens, err := iteratorToSlice(lexer)
