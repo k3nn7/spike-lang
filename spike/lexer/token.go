@@ -22,6 +22,7 @@ var operators = map[string]TokenType{
 	")": RightParenthesis,
 	"+": Plus,
 	"*": Asterisk,
+	";": Semicolon,
 }
 
 // Keywords
@@ -35,6 +36,7 @@ var keywords = map[string]TokenType{
 
 // Other
 const (
+	Semicolon  TokenType = "semicolon"
 	Eof        TokenType = "eof"
 	Invalid    TokenType = "invalid"
 	Identifier TokenType = "identifier"
