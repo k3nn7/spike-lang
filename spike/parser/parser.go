@@ -43,6 +43,8 @@ func (parser *Parser) parseStatement() (ast.Statement, error) {
 	switch parser.currentToken.Type {
 	case lexer.Let:
 		return parser.parseLetStatement()
+	case lexer.Return:
+		return parser.parseReturnStatement()
 	default:
 		return nil, errors.Errorf("Invalid statement: %s", parser.currentToken.Literal)
 	}
@@ -70,4 +72,16 @@ func (parser *Parser) parseLetStatement() (ast.Statement, error) {
 	}
 
 	return letStatement, nil
+}
+
+func (parser *Parser) parseReturnStatement() (ast.Statement, error) {
+	returnStatement := &ast.ReturnStatement{Token: parser.currentToken}
+
+	parser.advanceToken()
+
+	for parser.currentToken.Type != lexer.Semicolon {
+		parser.advanceToken()
+	}
+
+	return returnStatement, nil
 }
