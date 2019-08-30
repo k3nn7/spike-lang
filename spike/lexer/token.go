@@ -27,11 +27,13 @@ var operators = map[string]TokenType{
 
 // Keywords
 const (
-	Let TokenType = "let"
+	Let    TokenType = "let"
+	Return TokenType = "return"
 )
 
 var keywords = map[string]TokenType{
-	"let": Let,
+	"let":    Let,
+	"return": Return,
 }
 
 // Other
