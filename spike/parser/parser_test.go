@@ -3,6 +3,7 @@ package parser
 import (
 	"io"
 	"spike-interpreter-go/spike/lexer"
+	"spike-interpreter-go/spike/parser/ast"
 	"strings"
 	"testing"
 
@@ -11,10 +12,10 @@ import (
 
 func Test_Parser_code_sample(t *testing.T) {
 	input := strings.NewReader(`let variable = 10;`)
-	expectedProgram := Program{Statements: []Statement{
-		&LetStatement{
+	expectedProgram := ast.Program{Statements: []ast.Statement{
+		&ast.LetStatement{
 			Token: lexer.Token{Type: lexer.Let, Literal: "let"},
-			Name: &Identifier{
+			Name: &ast.Identifier{
 				Token: lexer.Token{Type: lexer.Identifier, Literal: "variable"},
 				Value: "variable",
 			},

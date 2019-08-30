@@ -2,6 +2,7 @@ package parser
 
 import (
 	"spike-interpreter-go/spike/lexer"
+	"spike-interpreter-go/spike/parser/ast"
 
 	"github.com/pkg/errors"
 )
@@ -21,8 +22,8 @@ func (parser *Parser) advanceToken() {
 	parser.peekToken, _ = parser.lexerInstance.NextToken()
 }
 
-func (parser *Parser) ParseProgram() (Program, error) {
-	program := Program{}
+func (parser *Parser) ParseProgram() (ast.Program, error) {
+	program := ast.Program{}
 
 	parser.advanceToken()
 
@@ -38,7 +39,7 @@ func (parser *Parser) ParseProgram() (Program, error) {
 	return program, nil
 }
 
-func (parser *Parser) parseStatement() (Statement, error) {
+func (parser *Parser) parseStatement() (ast.Statement, error) {
 	switch parser.currentToken.Type {
 	case lexer.Let:
 		return parser.parseLetStatement()
@@ -47,8 +48,8 @@ func (parser *Parser) parseStatement() (Statement, error) {
 	}
 }
 
-func (parser *Parser) parseLetStatement() (Statement, error) {
-	letStatement := &LetStatement{Token: parser.currentToken}
+func (parser *Parser) parseLetStatement() (ast.Statement, error) {
+	letStatement := &ast.LetStatement{Token: parser.currentToken}
 
 	parser.advanceToken()
 
@@ -56,7 +57,7 @@ func (parser *Parser) parseLetStatement() (Statement, error) {
 		return letStatement, errors.Errorf("expected identifier, got %s", parser.currentToken.Type)
 	}
 
-	letStatement.Name = &Identifier{Token: parser.currentToken, Value: parser.currentToken.Literal}
+	letStatement.Name = &ast.Identifier{Token: parser.currentToken, Value: parser.currentToken.Literal}
 
 	parser.advanceToken()
 
