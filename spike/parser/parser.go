@@ -53,7 +53,7 @@ func (parser *Parser) parseLetStatement() (Statement, error) {
 	parser.advanceToken()
 
 	if parser.currentToken.Type != lexer.Identifier {
-		return letStatement, errors.Errorf("Expecting identifier, got: %s", parser.currentToken.Literal)
+		return letStatement, errors.Errorf("expected identifier, got %s", parser.currentToken.Type)
 	}
 
 	letStatement.Name = &Identifier{Token: parser.currentToken, Value: parser.currentToken.Literal}
@@ -61,7 +61,7 @@ func (parser *Parser) parseLetStatement() (Statement, error) {
 	parser.advanceToken()
 
 	if parser.currentToken.Type != lexer.Assign {
-		return letStatement, errors.Errorf("Expecting assign operator, got: %s", parser.currentToken.Literal)
+		return letStatement, errors.Errorf("expected assign operator, got %s", parser.currentToken.Type)
 	}
 
 	for parser.currentToken.Type != lexer.Semicolon {
