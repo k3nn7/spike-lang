@@ -7,14 +7,32 @@ import (
 	"github.com/pkg/errors"
 )
 
+type prefixParseFunc func() (ast.Expression, error)
+type infixParseFunc func(expression ast.Expression) (ast.Expression, error)
+
+const (
+	lowest = iota
+)
+
 type Parser struct {
 	lexerInstance *lexer.Lexer
 	currentToken  lexer.Token
 	peekToken     lexer.Token
+	prefixParsers map[lexer.TokenType]prefixParseFunc
+	infixParsers  map[lexer.TokenType]infixParseFunc
 }
 
 func New(lexerInstance *lexer.Lexer) *Parser {
-	return &Parser{lexerInstance: lexerInstance}
+	parser := &Parser{lexerInstance: lexerInstance}
+	parser.prefixParsers = make(map[lexer.TokenType]prefixParseFunc)
+
+	parser.addPrefixParser(lexer.Identifier, parser.parseIdentifier)
+
+	return parser
+}
+
+func (parser *Parser) addPrefixParser(tokenType lexer.TokenType, prefixParser prefixParseFunc) {
+	parser.prefixParsers[tokenType] = prefixParser
 }
 
 func (parser *Parser) advanceToken() {
@@ -46,7 +64,7 @@ func (parser *Parser) parseStatement() (ast.Statement, error) {
 	case lexer.Return:
 		return parser.parseReturnStatement()
 	default:
-		return nil, errors.Errorf("Invalid statement: %s", parser.currentToken.Literal)
+		return parser.parseExpressionStatement()
 	}
 }
 
@@ -84,4 +102,28 @@ func (parser *Parser) parseReturnStatement() (ast.Statement, error) {
 	}
 
 	return returnStatement, nil
+}
+
+func (parser *Parser) parseExpressionStatement() (*ast.ExpressionStatement, error) {
+	returnStatement := &ast.ExpressionStatement{}
+	returnStatement.Expression, _ = parser.parseExpression()
+
+	if parser.peekToken.Type == lexer.Semicolon {
+		parser.advanceToken()
+	}
+
+	return returnStatement, nil
+}
+
+func (parser *Parser) parseExpression() (ast.Expression, error) {
+	parsePrefixExpression, ok := parser.prefixParsers[parser.currentToken.Type]
+	if ok {
+		return parsePrefixExpression()
+	}
+
+	return nil, errors.New("abc")
+}
+
+func (parser *Parser) parseIdentifier() (ast.Expression, error) {
+	return &ast.Identifier{Token: parser.currentToken, Value: parser.currentToken.Literal}, nil
 }

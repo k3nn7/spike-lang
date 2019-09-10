@@ -16,16 +16,16 @@ type Expression interface {
 }
 
 type ExpressionStatement struct {
-	expression Expression
+	Expression Expression
 }
 
 func (statement *ExpressionStatement) TokenLiteral() string {
-	return "expression"
+	return "Expression"
 }
 
-func (statement ExpressionStatement) statement() {
+func (statement *ExpressionStatement) statement() {
 }
 
 func (statement *ExpressionStatement) String() string {
-	return statement.expression.String()
+	return statement.Expression.String()
 }
