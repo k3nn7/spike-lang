@@ -12,13 +12,19 @@ type LetStatement struct {
 }
 
 func (let *LetStatement) TokenLiteral() string {
-	out := strings.Builder{}
-	out.WriteString(let.Name.TokenLiteral())
-	out.WriteString(" = ")
-	out.WriteString(let.Value.TokenLiteral())
-
-	return out.String()
+	return let.Token.Literal
 }
 
 func (let *LetStatement) statement() {
+}
+
+func (let *LetStatement) String() string {
+	out := strings.Builder{}
+	out.WriteString(let.Token.Literal)
+	out.WriteString(" ")
+	out.WriteString(let.Name.String())
+	out.WriteString(" = ")
+	out.WriteString(let.Value.String())
+
+	return out.String()
 }

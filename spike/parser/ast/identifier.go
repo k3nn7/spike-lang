@@ -8,7 +8,11 @@ type Identifier struct {
 }
 
 func (identifier *Identifier) TokenLiteral() string {
-	return identifier.Value
+	return identifier.Token.Literal
 }
 
 func (identifier *Identifier) expression() {}
+
+func (identifier *Identifier) String() string {
+	return identifier.Value
+}

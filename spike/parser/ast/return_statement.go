@@ -11,12 +11,16 @@ type ReturnStatement struct {
 }
 
 func (returnStatement *ReturnStatement) TokenLiteral() string {
-	out := strings.Builder{}
-	out.WriteString("return ")
-	out.WriteString(returnStatement.Result.TokenLiteral())
-
-	return out.String()
+	return returnStatement.Token.Literal
 }
 
 func (returnStatement *ReturnStatement) statement() {
+}
+
+func (returnStatement *ReturnStatement) String() string {
+	out := strings.Builder{}
+	out.WriteString("return ")
+	out.WriteString(returnStatement.Result.String())
+
+	return out.String()
 }
