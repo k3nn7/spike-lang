@@ -3,16 +3,13 @@ package parser
 import (
 	"spike-interpreter-go/spike/lexer"
 	"spike-interpreter-go/spike/parser/ast"
+	"strconv"
 
 	"github.com/pkg/errors"
 )
 
 type prefixParseFunc func() (ast.Expression, error)
 type infixParseFunc func(expression ast.Expression) (ast.Expression, error)
-
-const (
-	lowest = iota
-)
 
 type Parser struct {
 	lexerInstance *lexer.Lexer
@@ -27,6 +24,7 @@ func New(lexerInstance *lexer.Lexer) *Parser {
 	parser.prefixParsers = make(map[lexer.TokenType]prefixParseFunc)
 
 	parser.addPrefixParser(lexer.Identifier, parser.parseIdentifier)
+	parser.addPrefixParser(lexer.Integer, parser.parseInteger)
 
 	return parser
 }
@@ -85,11 +83,16 @@ func (parser *Parser) parseLetStatement() (ast.Statement, error) {
 		return letStatement, errors.Errorf("expected assign operator, got %s", parser.currentToken.Type)
 	}
 
-	for parser.currentToken.Type != lexer.Semicolon {
+	parser.advanceToken()
+
+	expression, err := parser.parseExpression()
+	letStatement.Value = expression
+
+	if parser.peekToken.Type == lexer.Semicolon {
 		parser.advanceToken()
 	}
 
-	return letStatement, nil
+	return letStatement, err
 }
 
 func (parser *Parser) parseReturnStatement() (ast.Statement, error) {
@@ -121,9 +124,21 @@ func (parser *Parser) parseExpression() (ast.Expression, error) {
 		return parsePrefixExpression()
 	}
 
-	return nil, errors.New("abc")
+	return nil, errors.New("invalid expression")
 }
 
 func (parser *Parser) parseIdentifier() (ast.Expression, error) {
 	return &ast.Identifier{Token: parser.currentToken, Value: parser.currentToken.Literal}, nil
+}
+
+func (parser *Parser) parseInteger() (ast.Expression, error) {
+	value, err := strconv.Atoi(parser.currentToken.Literal)
+	if err != nil {
+		return nil, err
+	}
+
+	return &ast.Integer{
+		Token: parser.currentToken,
+		Value: value,
+	}, nil
 }

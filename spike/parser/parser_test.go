@@ -24,6 +24,10 @@ func Test_Parser_parseValidCode(t *testing.T) {
 						Token: lexer.Token{Type: lexer.Identifier, Literal: "variable"},
 						Value: "variable",
 					},
+					Value: &ast.Integer{
+						Token: lexer.Token{Type: lexer.Integer, Literal: "10"},
+						Value: 10,
+					},
 				},
 			}},
 		},
