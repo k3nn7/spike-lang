@@ -91,7 +91,7 @@ func (lexer *Lexer) tryReadIdentifier() (*Token, error) {
 		return nil, err
 	}
 
-	if !isIdentifierCharacter(char[0]) {
+	if !isIdentifierFirstCharacter(char[0]) {
 		return nil, nil
 	}
 
@@ -178,8 +178,12 @@ func (lexer *Lexer) handleIOError(err error) (Token, error) {
 	return Token{}, err
 }
 
-func isIdentifierCharacter(c byte) bool {
+func isIdentifierFirstCharacter(c byte) bool {
 	return c >= 'a' && c <= 'z'
+}
+
+func isIdentifierCharacter(c byte) bool {
+	return (c >= 'a' && c <= 'z') || (c >= '0' && c <= '9')
 }
 
 func isNumber(c byte) bool {
