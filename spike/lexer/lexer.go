@@ -179,11 +179,11 @@ func (lexer *Lexer) handleIOError(err error) (Token, error) {
 }
 
 func isIdentifierFirstCharacter(c byte) bool {
-	return c >= 'a' && c <= 'z'
+	return (c >= 'a' && c <= 'z') || (c >= 'A' && c <= 'Z')
 }
 
 func isIdentifierCharacter(c byte) bool {
-	return (c >= 'a' && c <= 'z') || (c >= '0' && c <= '9')
+	return (c >= 'a' && c <= 'z') || (c >= '0' && c <= '9') || (c >= 'A' && c <= 'Z')
 }
 
 func isNumber(c byte) bool {

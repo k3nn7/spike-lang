@@ -9,7 +9,7 @@ import (
 
 func Test_Lexer_code_sample(t *testing.T) {
 	// given
-	input := strings.NewReader(" let variable = (10 + 20) * 5; return variable2 !")
+	input := strings.NewReader(" let variable = (10 + 20) * 5; return variable2 ! VAR3")
 	expectedTokens := []Token{
 		{Let, "let"},
 		{Identifier, "variable"},
@@ -25,6 +25,7 @@ func Test_Lexer_code_sample(t *testing.T) {
 		{Return, "return"},
 		{Identifier, "variable2"},
 		{Bang, "!"},
+		{Identifier, "VAR3"},
 	}
 
 	lexer := New(input)

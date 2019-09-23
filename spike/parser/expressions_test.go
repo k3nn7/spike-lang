@@ -25,11 +25,11 @@ func Test_Expressions(t *testing.T) {
 			input:           "let var = 125;",
 			expectedProgram: "let var = 125\n",
 		},
-		"negate identifier": {
+		"not identifier": {
 			input:           "! boolVariable;",
 			expectedProgram: "(!boolVariable)\n",
 		},
-		"negate integer": {
+		"not integer": {
 			input:           "! 0;",
 			expectedProgram: "(!0)\n",
 		},
