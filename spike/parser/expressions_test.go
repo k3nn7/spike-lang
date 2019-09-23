@@ -25,6 +25,14 @@ func Test_Expressions(t *testing.T) {
 			input:           "let var = 125;",
 			expectedProgram: "let var = 125\n",
 		},
+		"negate identifier": {
+			input:           "! boolVariable;",
+			expectedProgram: "(!boolVariable)\n",
+		},
+		"negate integer": {
+			input:           "! 0;",
+			expectedProgram: "(!0)\n",
+		},
 	}
 
 	for testCaseName, testCase := range testCases {

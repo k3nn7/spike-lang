@@ -25,6 +25,7 @@ func New(lexerInstance *lexer.Lexer) *Parser {
 
 	parser.addPrefixParser(lexer.Identifier, parser.parseIdentifier)
 	parser.addPrefixParser(lexer.Integer, parser.parseInteger)
+	parser.addPrefixParser(lexer.Bang, parser.parsePrefixExpression)
 
 	return parser
 }
@@ -141,4 +142,17 @@ func (parser *Parser) parseInteger() (ast.Expression, error) {
 		Token: parser.currentToken,
 		Value: value,
 	}, nil
+}
+
+func (parser *Parser) parsePrefixExpression() (ast.Expression, error) {
+	prefixExpression := &ast.PrefixExpression{
+		Token:    parser.currentToken,
+		Operator: parser.currentToken.Literal,
+	}
+
+	parser.advanceToken()
+	right, _ := parser.parseExpression()
+	prefixExpression.Right = right
+
+	return prefixExpression, nil
 }
