@@ -13,6 +13,7 @@ const (
 	LeftParenthesis  TokenType = "leftParenthesis"
 	RightParenthesis TokenType = "rightParenthesis"
 	Plus             TokenType = "plus"
+	Minus            TokenType = "minus"
 	Asterisk         TokenType = "asterisk"
 	Bang             TokenType = "bang"
 )
@@ -22,6 +23,7 @@ var operators = map[string]TokenType{
 	"(": LeftParenthesis,
 	")": RightParenthesis,
 	"+": Plus,
+	"-": Minus,
 	"*": Asterisk,
 	";": Semicolon,
 	"!": Bang,
