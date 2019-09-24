@@ -33,6 +33,14 @@ func Test_Expressions(t *testing.T) {
 			input:           "! 0;",
 			expectedProgram: "(!0)\n",
 		},
+		"negate integer": {
+			input:           "- 10;",
+			expectedProgram: "(-10)\n",
+		},
+		"negate identifier": {
+			input:           "- variable;",
+			expectedProgram: "(-variable)\n",
+		},
 	}
 
 	for testCaseName, testCase := range testCases {
@@ -41,6 +49,32 @@ func Test_Expressions(t *testing.T) {
 
 			assert.NoError(t, err)
 			assert.Equal(t, testCase.expectedProgram, program.String())
+		})
+	}
+}
+
+func Test_invalidExpression(t *testing.T) {
+	testCases := map[string]struct {
+		code          string
+		expectedError string
+	}{
+		"let after minus operator": {
+			code:          `-let;`,
+			expectedError: `"let" is not a valid expression`,
+		},
+		"return after minus operator": {
+			code:          `-return;`,
+			expectedError: `"return" is not a valid expression`,
+		},
+	}
+
+	for testCaseName, testCase := range testCases {
+		t.Run(testCaseName, func(t *testing.T) {
+			parser := New(lexer.New(strings.NewReader(testCase.code)))
+
+			_, err := parser.ParseProgram()
+
+			assert.EqualError(t, err, testCase.expectedError)
 		})
 	}
 }

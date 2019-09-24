@@ -1,7 +1,6 @@
 package parser
 
 import (
-	"io"
 	"spike-interpreter-go/spike/lexer"
 	"spike-interpreter-go/spike/parser/ast"
 	"strings"
@@ -12,11 +11,11 @@ import (
 
 func Test_Parser_parseValidCode(t *testing.T) {
 	testCases := map[string]struct {
-		code            io.Reader
+		code            string
 		expectedProgram ast.Program
 	}{
 		"let statement": {
-			code: strings.NewReader(`let variable = 10;`),
+			code: `let variable = 10;`,
 			expectedProgram: ast.Program{Statements: []ast.Statement{
 				&ast.LetStatement{
 					Token: lexer.Token{Type: lexer.Let, Literal: "let"},
@@ -32,7 +31,7 @@ func Test_Parser_parseValidCode(t *testing.T) {
 			}},
 		},
 		"return statement": {
-			code: strings.NewReader(`return 2 + 2;`),
+			code: `return 2 + 2;`,
 			expectedProgram: ast.Program{Statements: []ast.Statement{
 				&ast.ReturnStatement{
 					Token: lexer.Token{Type: lexer.Return, Literal: "return"},
@@ -43,7 +42,7 @@ func Test_Parser_parseValidCode(t *testing.T) {
 
 	for testCaseName, testCase := range testCases {
 		t.Run(testCaseName, func(t *testing.T) {
-			parser := New(lexer.New(testCase.code))
+			parser := New(lexer.New(strings.NewReader(testCase.code)))
 
 			program, err := parser.ParseProgram()
 
@@ -55,22 +54,22 @@ func Test_Parser_parseValidCode(t *testing.T) {
 
 func Test_Parser_parsingError(t *testing.T) {
 	testCases := map[string]struct {
-		code          io.Reader
+		code          string
 		expectedError string
 	}{
 		"missing assignment in let statement": {
-			code:          strings.NewReader("let variable 10;"),
+			code:          "let variable 10;",
 			expectedError: "expected assign operator, got integer",
 		},
 		"missing identifier in let statement": {
-			code:          strings.NewReader("let = 10;"),
+			code:          "let = 10;",
 			expectedError: "expected identifier, got assign",
 		},
 	}
 
 	for testCaseName, testCase := range testCases {
 		t.Run(testCaseName, func(t *testing.T) {
-			parser := New(lexer.New(testCase.code))
+			parser := New(lexer.New(strings.NewReader(testCase.code)))
 
 			_, err := parser.ParseProgram()
 

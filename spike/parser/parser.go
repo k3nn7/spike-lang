@@ -26,6 +26,7 @@ func New(lexerInstance *lexer.Lexer) *Parser {
 	parser.addPrefixParser(lexer.Identifier, parser.parseIdentifier)
 	parser.addPrefixParser(lexer.Integer, parser.parseInteger)
 	parser.addPrefixParser(lexer.Bang, parser.parsePrefixExpression)
+	parser.addPrefixParser(lexer.Minus, parser.parsePrefixExpression)
 
 	return parser
 }
@@ -109,8 +110,13 @@ func (parser *Parser) parseReturnStatement() (ast.Statement, error) {
 }
 
 func (parser *Parser) parseExpressionStatement() (*ast.ExpressionStatement, error) {
+	var err error
 	returnStatement := &ast.ExpressionStatement{}
-	returnStatement.Expression, _ = parser.parseExpression()
+	returnStatement.Expression, err = parser.parseExpression()
+
+	if err != nil {
+		return nil, err
+	}
 
 	if parser.peekToken.Type == lexer.Semicolon {
 		parser.advanceToken()
@@ -125,7 +131,7 @@ func (parser *Parser) parseExpression() (ast.Expression, error) {
 		return parsePrefixExpression()
 	}
 
-	return nil, errors.New("invalid expression")
+	return nil, errors.Errorf("%q is not a valid expression", parser.currentToken.Literal)
 }
 
 func (parser *Parser) parseIdentifier() (ast.Expression, error) {
@@ -151,8 +157,8 @@ func (parser *Parser) parsePrefixExpression() (ast.Expression, error) {
 	}
 
 	parser.advanceToken()
-	right, _ := parser.parseExpression()
+	right, err := parser.parseExpression()
 	prefixExpression.Right = right
 
-	return prefixExpression, nil
+	return prefixExpression, err
 }
