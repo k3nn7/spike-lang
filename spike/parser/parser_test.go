@@ -35,6 +35,27 @@ func Test_Parser_parseValidCode(t *testing.T) {
 			expectedProgram: ast.Program{Statements: []ast.Statement{
 				&ast.ReturnStatement{
 					Token: lexer.Token{Type: lexer.Return, Literal: "return"},
+					Result: &ast.InfixExpression{
+						Token: lexer.Token{
+							Type:    lexer.Plus,
+							Literal: "+",
+						},
+						Left: &ast.Integer{
+							Token: lexer.Token{
+								Type:    lexer.Integer,
+								Literal: "2",
+							},
+							Value: 2,
+						},
+						Operator: "+",
+						Right: &ast.Integer{
+							Token: lexer.Token{
+								Type:    lexer.Integer,
+								Literal: "2",
+							},
+							Value: 2,
+						},
+					},
 				},
 			}},
 		},
@@ -42,9 +63,7 @@ func Test_Parser_parseValidCode(t *testing.T) {
 
 	for testCaseName, testCase := range testCases {
 		t.Run(testCaseName, func(t *testing.T) {
-			parser := New(lexer.New(strings.NewReader(testCase.code)))
-
-			program, err := parser.ParseProgram()
+			program, err := New(lexer.New(strings.NewReader(testCase.code))).ParseProgram()
 
 			assert.NoError(t, err)
 			assert.Equal(t, testCase.expectedProgram, program)

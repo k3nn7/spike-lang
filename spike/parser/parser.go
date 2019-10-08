@@ -11,6 +11,22 @@ import (
 type prefixParseFunc func() (ast.Expression, error)
 type infixParseFunc func(expression ast.Expression) (ast.Expression, error)
 
+const (
+	lowest = iota
+	equals
+	inequality
+	sum
+	product
+	prefix
+	call
+)
+
+var precedences = map[lexer.TokenType]int{
+	lexer.Plus:     sum,
+	lexer.Minus:    sum,
+	lexer.Asterisk: product,
+}
+
 type Parser struct {
 	lexerInstance *lexer.Lexer
 	currentToken  lexer.Token
@@ -22,17 +38,25 @@ type Parser struct {
 func New(lexerInstance *lexer.Lexer) *Parser {
 	parser := &Parser{lexerInstance: lexerInstance}
 	parser.prefixParsers = make(map[lexer.TokenType]prefixParseFunc)
+	parser.infixParsers = make(map[lexer.TokenType]infixParseFunc)
 
 	parser.addPrefixParser(lexer.Identifier, parser.parseIdentifier)
 	parser.addPrefixParser(lexer.Integer, parser.parseInteger)
 	parser.addPrefixParser(lexer.Bang, parser.parsePrefixExpression)
 	parser.addPrefixParser(lexer.Minus, parser.parsePrefixExpression)
 
+	parser.addInfixParser(lexer.Plus, parser.parseInfixExpression)
+	parser.addInfixParser(lexer.Asterisk, parser.parseInfixExpression)
+
 	return parser
 }
 
 func (parser *Parser) addPrefixParser(tokenType lexer.TokenType, prefixParser prefixParseFunc) {
 	parser.prefixParsers[tokenType] = prefixParser
+}
+
+func (parser *Parser) addInfixParser(tokenType lexer.TokenType, infixParser infixParseFunc) {
+	parser.infixParsers[tokenType] = infixParser
 }
 
 func (parser *Parser) advanceToken() {
@@ -52,6 +76,10 @@ func (parser *Parser) ParseProgram() (ast.Program, error) {
 		}
 
 		program.AddStatement(statement)
+
+		if parser.peekToken.Type == lexer.Semicolon {
+			parser.advanceToken()
+		}
 	}
 
 	return program, nil
@@ -87,12 +115,8 @@ func (parser *Parser) parseLetStatement() (ast.Statement, error) {
 
 	parser.advanceToken()
 
-	expression, err := parser.parseExpression()
+	expression, err := parser.parseExpression(lowest)
 	letStatement.Value = expression
-
-	if parser.peekToken.Type == lexer.Semicolon {
-		parser.advanceToken()
-	}
 
 	return letStatement, err
 }
@@ -102,17 +126,16 @@ func (parser *Parser) parseReturnStatement() (ast.Statement, error) {
 
 	parser.advanceToken()
 
-	for parser.currentToken.Type != lexer.Semicolon {
-		parser.advanceToken()
-	}
+	expression, _ := parser.parseExpression(lowest)
+	returnStatement.Result = expression
 
 	return returnStatement, nil
 }
 
 func (parser *Parser) parseExpressionStatement() (*ast.ExpressionStatement, error) {
 	var err error
-	returnStatement := &ast.ExpressionStatement{}
-	returnStatement.Expression, err = parser.parseExpression()
+	statement := &ast.ExpressionStatement{}
+	statement.Expression, err = parser.parseExpression(lowest)
 
 	if err != nil {
 		return nil, err
@@ -122,20 +145,40 @@ func (parser *Parser) parseExpressionStatement() (*ast.ExpressionStatement, erro
 		parser.advanceToken()
 	}
 
-	return returnStatement, nil
+	return statement, nil
 }
 
-func (parser *Parser) parseExpression() (ast.Expression, error) {
+func (parser *Parser) parseExpression(precedence int) (ast.Expression, error) {
+	var expression ast.Expression
+	var err error
 	parsePrefixExpression, ok := parser.prefixParsers[parser.currentToken.Type]
-	if ok {
-		return parsePrefixExpression()
+	if !ok {
+		return expression, errors.Errorf("%q is not a valid prefix expression", parser.currentToken.Literal)
 	}
 
-	return nil, errors.Errorf("%q is not a valid expression", parser.currentToken.Literal)
+	expression, err = parsePrefixExpression()
+	if err != nil {
+		return expression, err
+	}
+
+	for parser.peekToken.Type != lexer.Semicolon && precedence < precedences[parser.peekToken.Type] {
+		parseInfixExpression, ok := parser.infixParsers[parser.peekToken.Type]
+		if !ok {
+			return expression, nil
+		}
+
+		parser.advanceToken()
+
+		expression, err = parseInfixExpression(expression)
+	}
+
+	return expression, err
 }
 
 func (parser *Parser) parseIdentifier() (ast.Expression, error) {
-	return &ast.Identifier{Token: parser.currentToken, Value: parser.currentToken.Literal}, nil
+	expression := &ast.Identifier{Token: parser.currentToken, Value: parser.currentToken.Literal}
+
+	return expression, nil
 }
 
 func (parser *Parser) parseInteger() (ast.Expression, error) {
@@ -144,10 +187,12 @@ func (parser *Parser) parseInteger() (ast.Expression, error) {
 		return nil, err
 	}
 
-	return &ast.Integer{
+	expression := &ast.Integer{
 		Token: parser.currentToken,
 		Value: value,
-	}, nil
+	}
+
+	return expression, nil
 }
 
 func (parser *Parser) parsePrefixExpression() (ast.Expression, error) {
@@ -157,8 +202,23 @@ func (parser *Parser) parsePrefixExpression() (ast.Expression, error) {
 	}
 
 	parser.advanceToken()
-	right, err := parser.parseExpression()
+	right, err := parser.parseExpression(prefix)
 	prefixExpression.Right = right
 
 	return prefixExpression, err
+}
+
+func (parser *Parser) parseInfixExpression(left ast.Expression) (ast.Expression, error) {
+	expression := &ast.InfixExpression{
+		Token:    parser.currentToken,
+		Left:     left,
+		Operator: parser.currentToken.Literal,
+	}
+
+	precedence, _ := precedences[parser.currentToken.Type]
+
+	parser.advanceToken()
+	expression.Right, _ = parser.parseExpression(precedence)
+
+	return expression, nil
 }
