@@ -42,6 +42,27 @@ func Test_Node2String(t *testing.T) {
 			}},
 			expected: "let var = var2\n",
 		},
+		{
+			ast: &InfixExpression{
+				Token: lexer.Token{Type: lexer.Plus, Literal: "+"},
+				Left: &Integer{
+					Token: lexer.Token{
+						Type:    lexer.Integer,
+						Literal: "55",
+					},
+					Value: 55,
+				},
+				Operator: "+",
+				Right: &Integer{
+					Token: lexer.Token{
+						Type:    lexer.Integer,
+						Literal: "99",
+					},
+					Value: 99,
+				},
+			},
+			expected: "(55 + 99)",
+		},
 	}
 
 	for _, testCase := range testCases {
