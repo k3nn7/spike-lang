@@ -51,19 +51,6 @@ func New(lexerInstance *lexer.Lexer) *Parser {
 	return parser
 }
 
-func (parser *Parser) addPrefixParser(tokenType lexer.TokenType, prefixParser prefixParseFunc) {
-	parser.prefixParsers[tokenType] = prefixParser
-}
-
-func (parser *Parser) addInfixParser(tokenType lexer.TokenType, infixParser infixParseFunc) {
-	parser.infixParsers[tokenType] = infixParser
-}
-
-func (parser *Parser) advanceToken() {
-	parser.currentToken = parser.peekToken
-	parser.peekToken, _ = parser.lexerInstance.NextToken()
-}
-
 func (parser *Parser) ParseProgram() (ast.Program, error) {
 	program := ast.Program{}
 
@@ -83,6 +70,19 @@ func (parser *Parser) ParseProgram() (ast.Program, error) {
 	}
 
 	return program, nil
+}
+
+func (parser *Parser) addPrefixParser(tokenType lexer.TokenType, prefixParser prefixParseFunc) {
+	parser.prefixParsers[tokenType] = prefixParser
+}
+
+func (parser *Parser) addInfixParser(tokenType lexer.TokenType, infixParser infixParseFunc) {
+	parser.infixParsers[tokenType] = infixParser
+}
+
+func (parser *Parser) advanceToken() {
+	parser.currentToken = parser.peekToken
+	parser.peekToken, _ = parser.lexerInstance.NextToken()
 }
 
 func (parser *Parser) parseStatement() (ast.Statement, error) {

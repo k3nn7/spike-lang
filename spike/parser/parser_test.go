@@ -71,6 +71,31 @@ func Test_Parser_parseValidCode(t *testing.T) {
 	}
 }
 
+func Test_Parser_ParseProgram(t *testing.T) {
+	testCases := []struct {
+		code        string
+		expectedAst string
+	}{
+		{
+			code:        "let variable = 2 + 2 * 2;",
+			expectedAst: "let variable = (2 + (2 * 2))\n",
+		},
+		{
+			code:        "return 2 + variable * 2;",
+			expectedAst: "return (2 + (variable * 2))\n",
+		},
+	}
+
+	for _, testCase := range testCases {
+		t.Run(testCase.code, func(t *testing.T) {
+			program, err := New(lexer.New(strings.NewReader(testCase.code))).ParseProgram()
+
+			assert.NoError(t, err)
+			assert.Equal(t, testCase.expectedAst, program.String())
+		})
+	}
+}
+
 func Test_Parser_parsingError(t *testing.T) {
 	testCases := map[string]struct {
 		code          string
