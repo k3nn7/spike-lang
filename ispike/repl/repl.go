@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"io"
 	"spike-interpreter-go/spike/lexer"
+	"spike-interpreter-go/spike/parser"
 	"strings"
 )
 
@@ -20,14 +21,14 @@ func Start(in io.Reader, out io.Writer) {
 		}
 
 		l := lexer.New(strings.NewReader(scanner.Text()))
+		p := parser.New(l)
+		program, err := p.ParseProgram()
 
-		for token, err := l.NextToken(); token.Type != lexer.Eof; token, err = l.NextToken() {
-			if err != nil {
-				fmt.Print(err)
-				return
-			}
-
-			fmt.Fprintf(out, "%+v\n", token)
+		if err != nil {
+			fmt.Print(err)
+			return
 		}
+
+		fmt.Fprint(out, program.String())
 	}
 }
