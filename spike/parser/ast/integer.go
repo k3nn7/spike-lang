@@ -7,7 +7,7 @@ import (
 
 type Integer struct {
 	Token lexer.Token
-	Value int
+	Value int64
 }
 
 func (integer *Integer) TokenLiteral() string {

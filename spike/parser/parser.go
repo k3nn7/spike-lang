@@ -51,8 +51,8 @@ func New(lexerInstance *lexer.Lexer) *Parser {
 	return parser
 }
 
-func (parser *Parser) ParseProgram() (ast.Program, error) {
-	program := ast.Program{}
+func (parser *Parser) ParseProgram() (*ast.Program, error) {
+	program := &ast.Program{}
 
 	parser.advanceToken()
 
@@ -182,7 +182,7 @@ func (parser *Parser) parseIdentifier() (ast.Expression, error) {
 }
 
 func (parser *Parser) parseInteger() (ast.Expression, error) {
-	value, err := strconv.Atoi(parser.currentToken.Literal)
+	value, err := strconv.ParseInt(parser.currentToken.Literal, 10, 64)
 	if err != nil {
 		return nil, err
 	}

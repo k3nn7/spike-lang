@@ -12,11 +12,11 @@ import (
 func Test_Parser_parseValidCode(t *testing.T) {
 	testCases := map[string]struct {
 		code            string
-		expectedProgram ast.Program
+		expectedProgram *ast.Program
 	}{
 		"let statement": {
 			code: `let variable = 10;`,
-			expectedProgram: ast.Program{Statements: []ast.Statement{
+			expectedProgram: &ast.Program{Statements: []ast.Statement{
 				&ast.LetStatement{
 					Token: lexer.Token{Type: lexer.Let, Literal: "let"},
 					Name: &ast.Identifier{
@@ -32,7 +32,7 @@ func Test_Parser_parseValidCode(t *testing.T) {
 		},
 		"return statement": {
 			code: `return 2 + 2;`,
-			expectedProgram: ast.Program{Statements: []ast.Statement{
+			expectedProgram: &ast.Program{Statements: []ast.Statement{
 				&ast.ReturnStatement{
 					Token: lexer.Token{Type: lexer.Return, Literal: "return"},
 					Result: &ast.InfixExpression{
