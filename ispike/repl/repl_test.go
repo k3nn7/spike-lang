@@ -8,8 +8,8 @@ import (
 )
 
 func TestStart(t *testing.T) {
-	input := strings.NewReader("let x = 10 + 5 * 6\n")
-	expectedOutput := ">> let x = (10 + (5 * 6))\n>> "
+	input := strings.NewReader("10\n")
+	expectedOutput := ">> 10\n>> "
 	output := &strings.Builder{}
 
 	Start(input, output)

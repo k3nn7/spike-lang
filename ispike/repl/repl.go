@@ -4,6 +4,7 @@ import (
 	"bufio"
 	"fmt"
 	"io"
+	"spike-interpreter-go/spike/eval"
 	"spike-interpreter-go/spike/lexer"
 	"spike-interpreter-go/spike/parser"
 	"strings"
@@ -29,6 +30,12 @@ func Start(in io.Reader, out io.Writer) {
 			return
 		}
 
-		fmt.Fprint(out, program.String())
+		result, err := eval.Eval(program)
+		if err != nil {
+			fmt.Print(err)
+		}
+
+		fmt.Fprint(out, result.Inspect())
+		fmt.Fprint(out, "\n")
 	}
 }
