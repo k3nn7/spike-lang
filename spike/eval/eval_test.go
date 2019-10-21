@@ -28,6 +28,13 @@ func Test_Eval_AST(t *testing.T) {
 				Value: 99,
 			},
 		},
+		{
+			input: &ast.Boolean{
+				Token: lexer.TrueToken,
+				Value: true,
+			},
+			expected: &object.Boolean{Value: true},
+		},
 	}
 
 	for _, testCase := range testCases {
@@ -48,6 +55,10 @@ func Test_Eval_program(t *testing.T) {
 		{
 			input:    "10",
 			expected: &object.Integer{Value: 10},
+		},
+		{
+			input:    "true",
+			expected: &object.True,
 		},
 	}
 

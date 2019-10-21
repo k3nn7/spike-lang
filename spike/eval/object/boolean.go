@@ -2,14 +2,19 @@ package object
 
 import "fmt"
 
-type Integer struct {
-	Value int64
+var (
+	True  = Boolean{Value: true}
+	False = Boolean{Value: false}
+)
+
+type Boolean struct {
+	Value bool
 }
 
-func (integer *Integer) Type() ObjectType {
-	return IntegerType
+func (boolean *Boolean) Type() ObjectType {
+	return BooleanType
 }
 
-func (integer *Integer) Inspect() string {
-	return fmt.Sprintf("%d", integer.Value)
+func (boolean *Boolean) Inspect() string {
+	return fmt.Sprintf("%t", boolean.Value)
 }

@@ -13,6 +13,8 @@ func Eval(node ast.Node) (object.Object, error) {
 		return Eval(node.Expression)
 	case *ast.Integer:
 		return &object.Integer{Value: node.Value}, nil
+	case *ast.Boolean:
+		return evalBoolean(node)
 	}
 	return nil, nil
 }
@@ -23,4 +25,12 @@ func evalStatements(statements []ast.Statement) (object.Object, error) {
 	}
 
 	return nil, nil
+}
+
+func evalBoolean(node *ast.Boolean) (object.Object, error) {
+	if node.Value {
+		return &object.True, nil
+	}
+
+	return &object.False, nil
 }
