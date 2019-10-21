@@ -42,6 +42,8 @@ func New(lexerInstance *lexer.Lexer) *Parser {
 
 	parser.addPrefixParser(lexer.Identifier, parser.parseIdentifier)
 	parser.addPrefixParser(lexer.Integer, parser.parseInteger)
+	parser.addPrefixParser(lexer.True, parser.parseBoolean)
+	parser.addPrefixParser(lexer.False, parser.parseBoolean)
 	parser.addPrefixParser(lexer.Bang, parser.parsePrefixExpression)
 	parser.addPrefixParser(lexer.Minus, parser.parsePrefixExpression)
 
@@ -193,6 +195,14 @@ func (parser *Parser) parseInteger() (ast.Expression, error) {
 	}
 
 	return expression, nil
+}
+
+func (parser *Parser) parseBoolean() (ast.Expression, error) {
+	if parser.currentToken == lexer.TrueToken {
+		return &ast.Boolean{Token: parser.currentToken, Value: true}, nil
+	}
+
+	return &ast.Boolean{Token: parser.currentToken, Value: false}, nil
 }
 
 func (parser *Parser) parsePrefixExpression() (ast.Expression, error) {

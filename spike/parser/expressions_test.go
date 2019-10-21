@@ -21,6 +21,14 @@ func Test_prefix_expressions(t *testing.T) {
 			input:           "10;",
 			expectedProgram: "10\n",
 		},
+		"true keyword": {
+			input:           "true;",
+			expectedProgram: "true\n",
+		},
+		"false keyword": {
+			input:           "false;",
+			expectedProgram: "false\n",
+		},
 		"let statement with two identifiers": {
 			input:           "let var1 = var2;",
 			expectedProgram: "let var1 = var2\n",
@@ -52,6 +60,10 @@ func Test_prefix_expressions(t *testing.T) {
 		"negate identifier": {
 			input:           "- variable;",
 			expectedProgram: "(-variable)\n",
+		},
+		"negate boolean": {
+			input:           "return !false;",
+			expectedProgram: "return (!false)\n",
 		},
 	}
 

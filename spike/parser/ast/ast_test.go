@@ -63,6 +63,20 @@ func Test_Node2String(t *testing.T) {
 			},
 			expected: "(55 + 99)",
 		},
+		{
+			ast: &Boolean{
+				Token: lexer.TrueToken,
+				Value: true,
+			},
+			expected: "true",
+		},
+		{
+			ast: &Boolean{
+				Token: lexer.TrueToken,
+				Value: false,
+			},
+			expected: "false",
+		},
 	}
 
 	for _, testCase := range testCases {
