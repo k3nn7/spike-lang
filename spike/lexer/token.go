@@ -18,26 +18,30 @@ const (
 	Bang             TokenType = "bang"
 )
 
-var operators = map[string]TokenType{
-	"=": Assign,
-	"(": LeftParenthesis,
-	")": RightParenthesis,
-	"+": Plus,
-	"-": Minus,
-	"*": Asterisk,
-	";": Semicolon,
-	"!": Bang,
+var operators = map[string]Token{
+	"=": AssignToken,
+	"(": LeftParenthesisToken,
+	")": RightParenthesisToken,
+	"+": PlusToken,
+	"-": MinusToken,
+	"*": AsteriskToken,
+	";": SemicolonToken,
+	"!": BangToken,
 }
 
 // Keywords
 const (
 	Let    TokenType = "let"
 	Return TokenType = "return"
+	True   TokenType = "true"
+	False  TokenType = "false"
 )
 
-var keywords = map[string]TokenType{
-	"let":    Let,
-	"return": Return,
+var keywords = map[string]Token{
+	"let":    LetToken,
+	"return": ReturnToken,
+	"true":   TrueToken,
+	"false":  FalseToken,
 }
 
 // Other
@@ -47,4 +51,21 @@ const (
 	Invalid    TokenType = "invalid"
 	Identifier TokenType = "identifier"
 	Integer    TokenType = "integer"
+)
+
+// Predefined tokens
+var (
+	EOFToken              = Token{Type: Eof, Literal: ""}
+	TrueToken             = Token{Type: True, Literal: "true"}
+	FalseToken            = Token{Type: False, Literal: "false"}
+	LetToken              = Token{Type: Let, Literal: "let"}
+	ReturnToken           = Token{Type: Return, Literal: "return"}
+	AssignToken           = Token{Type: Assign, Literal: "="}
+	LeftParenthesisToken  = Token{Type: LeftParenthesis, Literal: "("}
+	RightParenthesisToken = Token{Type: RightParenthesis, Literal: ")"}
+	PlusToken             = Token{Type: Plus, Literal: "+"}
+	MinusToken            = Token{Type: Minus, Literal: "-"}
+	AsteriskToken         = Token{Type: Asterisk, Literal: "*"}
+	SemicolonToken        = Token{Type: Semicolon, Literal: ";"}
+	BangToken             = Token{Type: Bang, Literal: "!"}
 )

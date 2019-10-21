@@ -172,7 +172,7 @@ func (lexer *Lexer) readNumber() (string, error) {
 
 func (lexer *Lexer) handleIOError(err error) (Token, error) {
 	if err == io.EOF {
-		return Token{Eof, ""}, nil
+		return EOFToken, nil
 	}
 
 	return Token{}, err
@@ -195,19 +195,19 @@ func isWhitespace(c byte) bool {
 }
 
 func lookupKeyword(literal string) *Token {
-	tokenType, ok := keywords[literal]
+	token, ok := keywords[literal]
 	if !ok {
 		return nil
 	}
 
-	return &Token{tokenType, literal}
+	return &token
 }
 
 func lookupOperator(literal string) *Token {
-	tokenType, ok := operators[literal]
+	token, ok := operators[literal]
 	if !ok {
 		return nil
 	}
 
-	return &Token{tokenType, literal}
+	return &token
 }

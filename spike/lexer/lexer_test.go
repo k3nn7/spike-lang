@@ -7,26 +7,58 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
+func Test_Lexer_token(t *testing.T) {
+	testCases := []struct {
+		input         string
+		expectedToken Token
+	}{
+		{
+			input:         "true",
+			expectedToken: TrueToken,
+		},
+		{
+			input:         "false",
+			expectedToken: FalseToken,
+		},
+	}
+
+	for _, testCase := range testCases {
+		t.Run(testCase.input, func(t *testing.T) {
+			l := New(strings.NewReader(testCase.input))
+
+			token, err := l.NextToken()
+			assert.NoError(t, err)
+			assert.Equal(t, testCase.expectedToken, token)
+
+			token, err = l.NextToken()
+			assert.NoError(t, err)
+			assert.Equal(t, EOFToken, token)
+		})
+	}
+}
+
 func Test_Lexer_code_sample(t *testing.T) {
 	// given
-	input := strings.NewReader(" let variable = (10 + 20) * 5; return variable2 ! VAR3 -")
+	input := strings.NewReader(" let variable = (10 + 20) * 5; return variable2 ! VAR3 - true false ")
 	expectedTokens := []Token{
-		{Let, "let"},
+		LetToken,
 		{Identifier, "variable"},
-		{Assign, "="},
-		{LeftParenthesis, "("},
+		AssignToken,
+		LeftParenthesisToken,
 		{Integer, "10"},
-		{Plus, "+"},
+		PlusToken,
 		{Integer, "20"},
-		{RightParenthesis, ")"},
-		{Asterisk, "*"},
+		RightParenthesisToken,
+		AsteriskToken,
 		{Integer, "5"},
-		{Semicolon, ";"},
-		{Return, "return"},
+		SemicolonToken,
+		ReturnToken,
 		{Identifier, "variable2"},
-		{Bang, "!"},
+		BangToken,
 		{Identifier, "VAR3"},
-		{Minus, "-"},
+		MinusToken,
+		TrueToken,
+		FalseToken,
 	}
 
 	lexer := New(input)
@@ -59,7 +91,7 @@ func Test_Lexer_invalidToken(t *testing.T) {
 func iteratorToSlice(iterator TokenIterator) ([]Token, error) {
 	result := make([]Token, 0)
 
-	for token, err := iterator.NextToken(); token.Type != Eof; token, err = iterator.NextToken() {
+	for token, err := iterator.NextToken(); token != EOFToken; token, err = iterator.NextToken() {
 		if err != nil {
 			return nil, err
 		}
