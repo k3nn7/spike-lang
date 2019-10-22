@@ -76,6 +76,10 @@ func Test_Eval_program(t *testing.T) {
 			input:    "!!false",
 			expected: &object.False,
 		},
+		{
+			input:    "-5",
+			expected: &object.Integer{Value: -5},
+		},
 	}
 
 	for _, testCase := range testCases {
