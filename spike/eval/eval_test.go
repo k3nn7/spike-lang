@@ -60,6 +60,22 @@ func Test_Eval_program(t *testing.T) {
 			input:    "true",
 			expected: &object.True,
 		},
+		{
+			input:    "!true",
+			expected: &object.False,
+		},
+		{
+			input:    "!false",
+			expected: &object.True,
+		},
+		{
+			input:    "!!true",
+			expected: &object.True,
+		},
+		{
+			input:    "!!false",
+			expected: &object.False,
+		},
 	}
 
 	for _, testCase := range testCases {
