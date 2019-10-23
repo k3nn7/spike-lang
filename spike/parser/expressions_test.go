@@ -102,6 +102,18 @@ func Test_infix_expressions(t *testing.T) {
 			input:           "1 + 2 + 3;",
 			expectedProgram: "((1 + 2) + 3)\n",
 		},
+		"subtraction": {
+			input:           "2 - 3;",
+			expectedProgram: "(2 - 3)\n",
+		},
+		"division": {
+			input:           "2 / 3;",
+			expectedProgram: "(2 / 3)\n",
+		},
+		"equation": {
+			input:           "2 + 3 * 5 - 8 / 15;",
+			expectedProgram: "((2 + (3 * 5)) - (8 / 15))\n",
+		},
 	}
 
 	for testCaseName, testCase := range testCases {
