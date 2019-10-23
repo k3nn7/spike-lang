@@ -16,6 +16,7 @@ const (
 	Minus            TokenType = "minus"
 	Asterisk         TokenType = "asterisk"
 	Bang             TokenType = "bang"
+	Slash            TokenType = "slash"
 )
 
 var operators = map[string]Token{
@@ -27,6 +28,7 @@ var operators = map[string]Token{
 	"*": AsteriskToken,
 	";": SemicolonToken,
 	"!": BangToken,
+	"/": SlashToken,
 }
 
 // Keywords
@@ -68,4 +70,5 @@ var (
 	AsteriskToken         = Token{Type: Asterisk, Literal: "*"}
 	SemicolonToken        = Token{Type: Semicolon, Literal: ";"}
 	BangToken             = Token{Type: Bang, Literal: "!"}
+	SlashToken            = Token{Type: Slash, Literal: "/"}
 )
