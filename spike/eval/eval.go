@@ -18,6 +18,11 @@ func Eval(node ast.Node) (object.Object, error) {
 	case *ast.PrefixExpression:
 		right, _ := Eval(node.Right)
 		return evalPrefixExpression(right, node.Operator)
+	case *ast.InfixExpression:
+		left, _ := Eval(node.Left)
+		right, _ := Eval(node.Right)
+
+		return evalInfixExpression(left, right, node.Operator)
 	}
 	return nil, nil
 }
@@ -67,4 +72,55 @@ func evalMinusOperator(right object.Object) (object.Object, error) {
 	default:
 		return nil, nil
 	}
+}
+
+func evalInfixExpression(left, right object.Object, operator string) (object.Object, error) {
+	switch operator {
+	case "+":
+		return evalPlusInfixOperator(left, right)
+	case "-":
+		return evalMinusInfixOperator(left, right)
+	case "*":
+		return evalAsteriskInfixOperator(left, right)
+	case "/":
+		return evalAsteriskSlashOperator(left, right)
+	default:
+		return nil, nil
+	}
+}
+
+func evalPlusInfixOperator(left, right object.Object) (object.Object, error) {
+	if left.Type() == object.IntegerType && right.Type() == object.IntegerType {
+		newValue := left.(*object.Integer).Value + right.(*object.Integer).Value
+		return &object.Integer{Value: newValue}, nil
+	}
+
+	return nil, nil
+}
+
+func evalMinusInfixOperator(left, right object.Object) (object.Object, error) {
+	if left.Type() == object.IntegerType && right.Type() == object.IntegerType {
+		newValue := left.(*object.Integer).Value - right.(*object.Integer).Value
+		return &object.Integer{Value: newValue}, nil
+	}
+
+	return nil, nil
+}
+
+func evalAsteriskInfixOperator(left, right object.Object) (object.Object, error) {
+	if left.Type() == object.IntegerType && right.Type() == object.IntegerType {
+		newValue := left.(*object.Integer).Value * right.(*object.Integer).Value
+		return &object.Integer{Value: newValue}, nil
+	}
+
+	return nil, nil
+}
+
+func evalAsteriskSlashOperator(left, right object.Object) (object.Object, error) {
+	if left.Type() == object.IntegerType && right.Type() == object.IntegerType {
+		newValue := left.(*object.Integer).Value / right.(*object.Integer).Value
+		return &object.Integer{Value: newValue}, nil
+	}
+
+	return nil, nil
 }

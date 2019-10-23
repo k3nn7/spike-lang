@@ -80,6 +80,22 @@ func Test_Eval_program(t *testing.T) {
 			input:    "-5",
 			expected: &object.Integer{Value: -5},
 		},
+		{
+			input:    "2 + 2",
+			expected: &object.Integer{Value: 4},
+		},
+		{
+			input:    "2 - 3",
+			expected: &object.Integer{Value: -1},
+		},
+		{
+			input:    "2 * 3",
+			expected: &object.Integer{Value: 6},
+		},
+		{
+			input:    "15 / 3",
+			expected: &object.Integer{Value: 5},
+		},
 	}
 
 	for _, testCase := range testCases {
