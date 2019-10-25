@@ -39,7 +39,11 @@ func Test_Lexer_token(t *testing.T) {
 
 func Test_Lexer_code_sample(t *testing.T) {
 	// given
-	input := strings.NewReader(" let variable = (10 + 20) * 5; return variable2 ! VAR3 - true false /")
+	input := strings.NewReader(`
+let variable = (10 + 20) * 5; 
+return variable2 ! VAR3 - true false / < > == !=
+<= >= || &&
+`)
 	expectedTokens := []Token{
 		LetToken,
 		{Identifier, "variable"},
@@ -60,6 +64,14 @@ func Test_Lexer_code_sample(t *testing.T) {
 		TrueToken,
 		FalseToken,
 		SlashToken,
+		LessThanToken,
+		GreaterThanToken,
+		EqualToken,
+		NotEqualToken,
+		LessOrEqualToken,
+		GreaterOrEqualToken,
+		OrToken,
+		AndToken,
 	}
 
 	lexer := New(input)

@@ -17,9 +17,17 @@ const (
 	Asterisk         TokenType = "asterisk"
 	Bang             TokenType = "bang"
 	Slash            TokenType = "slash"
+	LessThan         TokenType = "lessThan"
+	GreaterThan      TokenType = "greaterThan"
+	LessOrEqual      TokenType = "lessOrEqual"
+	GreaterOrEqual   TokenType = "greaterOrEqual"
+	Equal            TokenType = "equal"
+	NotEqual         TokenType = "notEqual"
+	And              TokenType = "and"
+	Or               TokenType = "or"
 )
 
-var operators = map[string]Token{
+var oneCharOperators = map[string]Token{
 	"=": AssignToken,
 	"(": LeftParenthesisToken,
 	")": RightParenthesisToken,
@@ -29,6 +37,17 @@ var operators = map[string]Token{
 	";": SemicolonToken,
 	"!": BangToken,
 	"/": SlashToken,
+	"<": LessThanToken,
+	">": GreaterThanToken,
+}
+
+var twoCharOperators = map[string]Token{
+	"==": EqualToken,
+	"!=": NotEqualToken,
+	"<=": LessOrEqualToken,
+	">=": GreaterOrEqualToken,
+	"&&": AndToken,
+	"||": OrToken,
 }
 
 // Keywords
@@ -71,4 +90,12 @@ var (
 	SemicolonToken        = Token{Type: Semicolon, Literal: ";"}
 	BangToken             = Token{Type: Bang, Literal: "!"}
 	SlashToken            = Token{Type: Slash, Literal: "/"}
+	LessThanToken         = Token{Type: LessThan, Literal: "<"}
+	GreaterThanToken      = Token{Type: GreaterThan, Literal: ">"}
+	EqualToken            = Token{Type: Equal, Literal: "=="}
+	NotEqualToken         = Token{Type: NotEqual, Literal: "!="}
+	LessOrEqualToken      = Token{Type: LessOrEqual, Literal: "<="}
+	GreaterOrEqualToken   = Token{Type: GreaterOrEqual, Literal: ">="}
+	AndToken              = Token{Type: And, Literal: "&&"}
+	OrToken               = Token{Type: Or, Literal: "||"}
 )

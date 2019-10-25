@@ -28,7 +28,15 @@ func (lexer *Lexer) NextToken() (Token, error) {
 }
 
 func (lexer *Lexer) readNextToken() (Token, error) {
-	operator, err := lexer.tryReadOperator()
+	operator, err := lexer.tryReadTwoCharOperator()
+	if err != nil {
+		return lexer.handleIOError(err)
+	}
+	if operator != nil {
+		return *operator, nil
+	}
+
+	operator, err = lexer.tryReadOneCharOperator()
 	if err != nil {
 		return lexer.handleIOError(err)
 	}
@@ -69,13 +77,32 @@ func (lexer *Lexer) skipWhitespace() error {
 	return err
 }
 
-func (lexer *Lexer) tryReadOperator() (*Token, error) {
+func (lexer *Lexer) tryReadTwoCharOperator() (*Token, error) {
+	twoChars, err := lexer.reader.Peek(2)
+	if err == io.EOF {
+		return nil, nil
+	}
+
+	if err != nil {
+		return nil, err
+	}
+
+	t := lookupTwoCharOperator(string(twoChars))
+	if t == nil {
+		return nil, nil
+	}
+
+	_, err = lexer.reader.Read(twoChars)
+	return t, err
+}
+
+func (lexer *Lexer) tryReadOneCharOperator() (*Token, error) {
 	char, err := lexer.reader.Peek(1)
 	if err != nil {
 		return nil, err
 	}
 
-	t := lookupOperator(string(char))
+	t := lookupOneCharOperator(string(char))
 	if t == nil {
 		return nil, nil
 
@@ -203,8 +230,17 @@ func lookupKeyword(literal string) *Token {
 	return &token
 }
 
-func lookupOperator(literal string) *Token {
-	token, ok := operators[literal]
+func lookupOneCharOperator(literal string) *Token {
+	token, ok := oneCharOperators[literal]
+	if !ok {
+		return nil
+	}
+
+	return &token
+}
+
+func lookupTwoCharOperator(literal string) *Token {
+	token, ok := twoCharOperators[literal]
 	if !ok {
 		return nil
 	}
