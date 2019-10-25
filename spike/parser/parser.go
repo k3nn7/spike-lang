@@ -13,8 +13,10 @@ type infixParseFunc func(expression ast.Expression) (ast.Expression, error)
 
 const (
 	lowest = iota
-	equals
+	alternative
+	conjunction
 	inequality
+	equals
 	sum
 	product
 	prefix
@@ -22,10 +24,18 @@ const (
 )
 
 var precedences = map[lexer.TokenType]int{
-	lexer.Plus:     sum,
-	lexer.Minus:    sum,
-	lexer.Asterisk: product,
-	lexer.Slash:    product,
+	lexer.Plus:           sum,
+	lexer.Minus:          sum,
+	lexer.Asterisk:       product,
+	lexer.Slash:          product,
+	lexer.Equal:          equals,
+	lexer.NotEqual:       equals,
+	lexer.LessThan:       inequality,
+	lexer.GreaterThan:    inequality,
+	lexer.LessOrEqual:    inequality,
+	lexer.GreaterOrEqual: inequality,
+	lexer.And:            conjunction,
+	lexer.Or:             alternative,
 }
 
 type Parser struct {
@@ -52,6 +62,14 @@ func New(lexerInstance *lexer.Lexer) *Parser {
 	parser.addInfixParser(lexer.Asterisk, parser.parseInfixExpression)
 	parser.addInfixParser(lexer.Minus, parser.parseInfixExpression)
 	parser.addInfixParser(lexer.Slash, parser.parseInfixExpression)
+	parser.addInfixParser(lexer.Equal, parser.parseInfixExpression)
+	parser.addInfixParser(lexer.NotEqual, parser.parseInfixExpression)
+	parser.addInfixParser(lexer.GreaterThan, parser.parseInfixExpression)
+	parser.addInfixParser(lexer.LessThan, parser.parseInfixExpression)
+	parser.addInfixParser(lexer.GreaterOrEqual, parser.parseInfixExpression)
+	parser.addInfixParser(lexer.LessOrEqual, parser.parseInfixExpression)
+	parser.addInfixParser(lexer.Or, parser.parseInfixExpression)
+	parser.addInfixParser(lexer.And, parser.parseInfixExpression)
 
 	return parser
 }

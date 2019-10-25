@@ -114,6 +114,10 @@ func Test_infix_expressions(t *testing.T) {
 			input:           "2 + 3 * 5 - 8 / 15;",
 			expectedProgram: "((2 + (3 * 5)) - (8 / 15))\n",
 		},
+		"boolean expression": {
+			input:           "2 > 3 || 3 < 2 && 2 == 2 || 2 != 3 && 3 >= 2 == 5 <= 4;",
+			expectedProgram: "(((2 > 3) || ((3 < 2) && (2 == 2))) || ((2 != 3) && ((3 >= (2 == 5)) <= 4)))\n",
+		},
 	}
 
 	for testCaseName, testCase := range testCases {
