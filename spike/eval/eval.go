@@ -84,6 +84,41 @@ func evalInfixExpression(left, right object.Object, operator string) (object.Obj
 		return evalAsteriskInfixOperator(left, right)
 	case "/":
 		return evalAsteriskSlashOperator(left, right)
+	case "==":
+		equal, err := left.Equal(right)
+		return nativeBoolToBoolean(equal), err
+	case "!=":
+		equal, err := left.Equal(right)
+		return nativeBoolToBoolean(!equal), err
+	case "<":
+		leftComparable := left.(object.Comparable)
+		rightComparable := right.(object.Comparable)
+		result, err := leftComparable.Compare(rightComparable)
+		return nativeBoolToBoolean(result == object.LT), err
+	case ">":
+		leftComparable := left.(object.Comparable)
+		rightComparable := right.(object.Comparable)
+		result, err := leftComparable.Compare(rightComparable)
+		return nativeBoolToBoolean(result == object.GT), err
+	case "<=":
+		leftComparable := left.(object.Comparable)
+		rightComparable := right.(object.Comparable)
+		result, err := leftComparable.Compare(rightComparable)
+		return nativeBoolToBoolean(result == object.LT || result == object.EQ), err
+	case ">=":
+		leftComparable := left.(object.Comparable)
+		rightComparable := right.(object.Comparable)
+		result, err := leftComparable.Compare(rightComparable)
+		return nativeBoolToBoolean(result == object.GT || result == object.EQ), err
+	case "||":
+		leftBool := left.(*object.Boolean)
+		rightBool := right.(*object.Boolean)
+		return nativeBoolToBoolean(leftBool.Value || rightBool.Value), nil
+	case "&&":
+		leftBool := left.(*object.Boolean)
+		rightBool := right.(*object.Boolean)
+		return nativeBoolToBoolean(leftBool.Value && rightBool.Value), nil
+
 	default:
 		return nil, nil
 	}
@@ -123,4 +158,12 @@ func evalAsteriskSlashOperator(left, right object.Object) (object.Object, error)
 	}
 
 	return nil, nil
+}
+
+func nativeBoolToBoolean(b bool) *object.Boolean {
+	if b {
+		return &object.True
+	}
+
+	return &object.False
 }

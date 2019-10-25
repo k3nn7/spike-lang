@@ -96,6 +96,46 @@ func Test_Eval_program(t *testing.T) {
 			input:    "15 / 3",
 			expected: &object.Integer{Value: 5},
 		},
+		{
+			input:    "true == false",
+			expected: &object.False,
+		},
+		{
+			input:    "2 != 3",
+			expected: &object.True,
+		},
+		{
+			input:    "2 < 3",
+			expected: &object.True,
+		},
+		{
+			input:    "2 > 3",
+			expected: &object.False,
+		},
+		{
+			input:    "2 <= 3",
+			expected: &object.True,
+		},
+		{
+			input:    "3 <= 3",
+			expected: &object.True,
+		},
+		{
+			input:    "2 >= 3",
+			expected: &object.False,
+		},
+		{
+			input:    "3 >= 3",
+			expected: &object.True,
+		},
+		{
+			input:    "true || false",
+			expected: &object.True,
+		},
+		{
+			input:    "true && false",
+			expected: &object.False,
+		},
 	}
 
 	for _, testCase := range testCases {

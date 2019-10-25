@@ -18,3 +18,12 @@ func (boolean *Boolean) Type() ObjectType {
 func (boolean *Boolean) Inspect() string {
 	return fmt.Sprintf("%t", boolean.Value)
 }
+
+func (boolean *Boolean) Equal(other Object) (bool, error) {
+	otherBoolean, ok := other.(*Boolean)
+	if !ok {
+		return false, NotComparableError
+	}
+
+	return boolean.Value == otherBoolean.Value, nil
+}
