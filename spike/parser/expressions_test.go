@@ -118,6 +118,10 @@ func Test_infix_expressions(t *testing.T) {
 			input:           "2 > 3 || 3 < 2 && 2 == 2 || 2 != 3 && 3 >= 2 == 5 <= 4;",
 			expectedProgram: "(((2 > 3) || ((3 < 2) && (2 == 2))) || ((2 != 3) && ((3 >= (2 == 5)) <= 4)))\n",
 		},
+		"grouped expressions": {
+			input:           "(2 + 2) * 3;",
+			expectedProgram: "((2 + 2) * 3)\n",
+		},
 	}
 
 	for testCaseName, testCase := range testCases {

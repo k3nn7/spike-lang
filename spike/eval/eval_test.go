@@ -136,6 +136,10 @@ func Test_Eval_program(t *testing.T) {
 			input:    "true && false",
 			expected: &object.False,
 		},
+		{
+			input:    "(2 > 3) || (true != false)",
+			expected: &object.True,
+		},
 	}
 
 	for _, testCase := range testCases {
