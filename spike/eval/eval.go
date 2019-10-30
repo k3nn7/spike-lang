@@ -23,6 +23,15 @@ func Eval(node ast.Node) (object.Object, error) {
 		right, _ := Eval(node.Right)
 
 		return evalInfixExpression(left, right, node.Operator)
+	case *ast.IfExpression:
+		condition, _ := Eval(node.Condition)
+		if equal, _ := condition.Equal(&object.True); equal {
+			return Eval(node.Then)
+		} else {
+			return Eval(node.Else)
+		}
+	case *ast.BlockStatement:
+		return evalStatements(node.Statements)
 	}
 	return nil, nil
 }
