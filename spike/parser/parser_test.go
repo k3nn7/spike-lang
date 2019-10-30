@@ -84,6 +84,14 @@ func Test_Parser_ParseProgram(t *testing.T) {
 			code:        "return 2 + variable * 2;",
 			expectedAst: "return (2 + (variable * 2))\n",
 		},
+		{
+			code:        "if (true == false) { let a = 10; };",
+			expectedAst: "if (true == false) {\n  let a = 10;\n}\n",
+		},
+		{
+			code:        "if (true == false) { let a = 10; } else { let a = 20; };",
+			expectedAst: "if (true == false) {\n  let a = 10;\n} else {\n  let a = 20;\n}\n",
+		},
 	}
 
 	for _, testCase := range testCases {

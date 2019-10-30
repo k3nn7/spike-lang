@@ -77,6 +77,89 @@ func Test_Node2String(t *testing.T) {
 			},
 			expected: "false",
 		},
+		{
+			ast: &BlockStatement{
+				Token: lexer.LeftBraceToken,
+				Statements: []Statement{
+					&LetStatement{
+						Token: lexer.LetToken,
+						Name: &Identifier{
+							Token: lexer.Token{
+								Type:    lexer.Identifier,
+								Literal: "foo",
+							},
+							Value: "foo",
+						},
+						Value: &Boolean{
+							Token: lexer.TrueToken,
+							Value: true,
+						},
+					},
+				},
+			},
+			expected: "{\n  let foo = true;\n}",
+		},
+		{
+			ast: &IfExpression{
+				Condition: &InfixExpression{
+					Token: lexer.EqualToken,
+					Left: &Boolean{
+						Token: lexer.TrueToken,
+						Value: true,
+					},
+					Operator: "==",
+					Right: &Boolean{
+						Token: lexer.FalseToken,
+						Value: false,
+					},
+				},
+				Then: &BlockStatement{
+					Token: lexer.LeftBraceToken,
+					Statements: []Statement{
+						&LetStatement{
+							Token: lexer.LetToken,
+							Name: &Identifier{
+								Token: lexer.Token{
+									Type:    lexer.Identifier,
+									Literal: "a",
+								},
+								Value: "a",
+							},
+							Value: &Integer{
+								Token: lexer.Token{
+									Type:    lexer.Integer,
+									Literal: "10",
+								},
+								Value: 10,
+							},
+						},
+					},
+				},
+				Else: &BlockStatement{
+					Token: lexer.LeftBraceToken,
+					Statements: []Statement{
+						&LetStatement{
+							Token: lexer.LetToken,
+							Name: &Identifier{
+								Token: lexer.Token{
+									Type:    lexer.Identifier,
+									Literal: "a",
+								},
+								Value: "a",
+							},
+							Value: &Integer{
+								Token: lexer.Token{
+									Type:    lexer.Integer,
+									Literal: "5",
+								},
+								Value: 5,
+							},
+						},
+					},
+				},
+			},
+			expected: "if (true == false) {\n  let a = 10;\n} else {\n  let a = 5;\n}",
+		},
 	}
 
 	for _, testCase := range testCases {

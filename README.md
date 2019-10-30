@@ -68,9 +68,9 @@ u.changeName("newName")
 
 ## ToDo
 
-- [ ] Lexing of all basic mathematical operators
+- [x] Lexing of all basic mathematical operators
 - [x] Parsing booleans
-- [ ] Parsing grouped expressions
-- [ ] Parsing if-else expressions
+- [x] Parsing grouped expressions
+- [x] Parsing if-else expressions
 - [ ] Parsing function literals
 - [ ] Parsing call expressions
