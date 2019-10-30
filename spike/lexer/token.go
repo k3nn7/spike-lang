@@ -25,6 +25,8 @@ const (
 	NotEqual         TokenType = "notEqual"
 	And              TokenType = "and"
 	Or               TokenType = "or"
+	LeftBrace        TokenType = "leftBrace"
+	RightBrace       TokenType = "rightBrace"
 )
 
 var oneCharOperators = map[string]Token{
@@ -39,6 +41,8 @@ var oneCharOperators = map[string]Token{
 	"/": SlashToken,
 	"<": LessThanToken,
 	">": GreaterThanToken,
+	"{": LeftBraceToken,
+	"}": RightBraceToken,
 }
 
 var twoCharOperators = map[string]Token{
@@ -56,6 +60,8 @@ const (
 	Return TokenType = "return"
 	True   TokenType = "true"
 	False  TokenType = "false"
+	If     TokenType = "if"
+	Else   TokenType = "else"
 )
 
 var keywords = map[string]Token{
@@ -63,6 +69,8 @@ var keywords = map[string]Token{
 	"return": ReturnToken,
 	"true":   TrueToken,
 	"false":  FalseToken,
+	"if":     IfToken,
+	"else":   ElseToken,
 }
 
 // Other
@@ -98,4 +106,8 @@ var (
 	GreaterOrEqualToken   = Token{Type: GreaterOrEqual, Literal: ">="}
 	AndToken              = Token{Type: And, Literal: "&&"}
 	OrToken               = Token{Type: Or, Literal: "||"}
+	IfToken               = Token{Type: If, Literal: "if"}
+	ElseToken             = Token{Type: Else, Literal: "else"}
+	LeftBraceToken        = Token{Type: LeftBrace, Literal: "{"}
+	RightBraceToken       = Token{Type: RightBrace, Literal: "}"}
 )

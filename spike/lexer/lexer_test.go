@@ -42,7 +42,7 @@ func Test_Lexer_code_sample(t *testing.T) {
 	input := strings.NewReader(`
 let variable = (10 + 20) * 5; 
 return variable2 ! VAR3 - true false / < > == !=
-<= >= || &&
+<= >= || && if else { }
 `)
 	expectedTokens := []Token{
 		LetToken,
@@ -72,6 +72,10 @@ return variable2 ! VAR3 - true false / < > == !=
 		GreaterOrEqualToken,
 		OrToken,
 		AndToken,
+		IfToken,
+		ElseToken,
+		LeftBraceToken,
+		RightBraceToken,
 	}
 
 	lexer := New(input)
