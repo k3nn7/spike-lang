@@ -148,6 +148,22 @@ func Test_Eval_program(t *testing.T) {
 			input:    "if (2 < 3) { 10; } else { 11; }",
 			expected: &object.Integer{Value: 10},
 		},
+		{
+			input:    "return 10;",
+			expected: &object.Integer{Value: 10},
+		},
+		{
+			input:    "2 + 2; return 5;",
+			expected: &object.Integer{Value: 5},
+		},
+		{
+			input:    "2 + 2; return 5; 3 + 3;",
+			expected: &object.Integer{Value: 5},
+		},
+		{
+			input:    "if (10 > 1) { if (10 > 1) { return 10; } return 5; }",
+			expected: &object.Integer{Value: 10},
+		},
 	}
 
 	for _, testCase := range testCases {

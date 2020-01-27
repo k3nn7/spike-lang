@@ -1,6 +1,7 @@
 package eval
 
 import (
+	"github.com/pkg/errors"
 	"spike-interpreter-go/spike/eval/object"
 	"spike-interpreter-go/spike/parser/ast"
 )
@@ -8,7 +9,7 @@ import (
 func Eval(node ast.Node) (object.Object, error) {
 	switch node := node.(type) {
 	case *ast.Program:
-		return evalStatements(node.Statements)
+		return evalProgram(node)
 	case *ast.ExpressionStatement:
 		return Eval(node.Expression)
 	case *ast.Integer:
@@ -32,16 +33,41 @@ func Eval(node ast.Node) (object.Object, error) {
 		}
 	case *ast.BlockStatement:
 		return evalStatements(node.Statements)
+	case *ast.ReturnStatement:
+		result, _ := Eval(node.Result)
+		return &object.Return{Value: result}, nil
+	default:
+		return nil, errors.Errorf("Trying to evaluate unknown node: %T: %#v", node, node)
 	}
 	return nil, nil
 }
 
-func evalStatements(statements []ast.Statement) (object.Object, error) {
-	for _, statement := range statements {
-		return Eval(statement)
+func evalProgram(program *ast.Program) (object.Object, error) {
+	var result object.Object
+	var err error
+	for _, statement := range program.Statements {
+		result, err = Eval(statement)
+
+		if returnValue, ok := result.(*object.Return); ok {
+			return returnValue.Value, nil
+		}
 	}
 
-	return nil, nil
+	return result, err
+}
+
+func evalStatements(statements []ast.Statement) (object.Object, error) {
+	var result object.Object
+	var err error
+	for _, statement := range statements {
+		result, err = Eval(statement)
+
+		if _, ok := result.(*object.Return); ok {
+			return result, nil
+		}
+	}
+
+	return result, err
 }
 
 func evalBoolean(node *ast.Boolean) (object.Object, error) {

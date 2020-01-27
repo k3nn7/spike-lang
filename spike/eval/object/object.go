@@ -6,6 +6,7 @@ const (
 	IntegerType ObjectType = "integer"
 	BooleanType ObjectType = "boolean"
 	NullType    ObjectType = "null"
+	ReturnType  ObjectType = "return"
 )
 
 type Ordering int8
