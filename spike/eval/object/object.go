@@ -7,6 +7,7 @@ const (
 	BooleanType ObjectType = "boolean"
 	NullType    ObjectType = "null"
 	ReturnType  ObjectType = "return"
+	ErrorType   ObjectType = "error"
 )
 
 type Ordering int8
