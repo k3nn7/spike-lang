@@ -1,9 +1,11 @@
 package eval
 
 import (
-	"github.com/pkg/errors"
+	"fmt"
 	"spike-interpreter-go/spike/eval/object"
 	"spike-interpreter-go/spike/parser/ast"
+
+	"github.com/pkg/errors"
 )
 
 func Eval(node ast.Node) (object.Object, error) {
@@ -51,6 +53,10 @@ func evalProgram(program *ast.Program) (object.Object, error) {
 		if returnValue, ok := result.(*object.Return); ok {
 			return returnValue.Value, nil
 		}
+
+		if errorValue, ok := result.(*object.Error); ok {
+			return nil, errors.New(errorValue.Message)
+		}
 	}
 
 	return result, err
@@ -64,6 +70,10 @@ func evalStatements(statements []ast.Statement) (object.Object, error) {
 
 		if _, ok := result.(*object.Return); ok {
 			return result, nil
+		}
+
+		if errorValue, ok := result.(*object.Error); ok {
+			return nil, errors.New(errorValue.Message)
 		}
 	}
 
@@ -165,7 +175,9 @@ func evalPlusInfixOperator(left, right object.Object) (object.Object, error) {
 		return &object.Integer{Value: newValue}, nil
 	}
 
-	return nil, nil
+	return &object.Error{
+		Message: fmt.Sprintf("type mismatch: %s + %s", left.Type(), right.Type()),
+	}, nil
 }
 
 func evalMinusInfixOperator(left, right object.Object) (object.Object, error) {
