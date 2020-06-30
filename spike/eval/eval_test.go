@@ -172,7 +172,6 @@ func Test_Eval_program(t *testing.T) {
 			program, err := parser.New(l).ParseProgram()
 
 			assert.NoError(t, err)
-
 			result, err := Eval(program)
 
 			assert.NoError(t, err)

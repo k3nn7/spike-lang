@@ -1,7 +1,6 @@
 package eval
 
 import (
-	"fmt"
 	"spike-interpreter-go/spike/eval/object"
 	"spike-interpreter-go/spike/parser/ast"
 
@@ -19,11 +18,20 @@ func Eval(node ast.Node) (object.Object, error) {
 	case *ast.Boolean:
 		return evalBoolean(node)
 	case *ast.PrefixExpression:
-		right, _ := Eval(node.Right)
+		right, err := Eval(node.Right)
+		if err != nil {
+			return nil, err
+		}
 		return evalPrefixExpression(right, node.Operator)
 	case *ast.InfixExpression:
-		left, _ := Eval(node.Left)
-		right, _ := Eval(node.Right)
+		left, err := Eval(node.Left)
+		if err != nil {
+			return nil, err
+		}
+		right, err := Eval(node.Right)
+		if err != nil {
+			return nil, err
+		}
 
 		return evalInfixExpression(left, right, node.Operator)
 	case *ast.IfExpression:
@@ -49,13 +57,12 @@ func evalProgram(program *ast.Program) (object.Object, error) {
 	var err error
 	for _, statement := range program.Statements {
 		result, err = Eval(statement)
+		if err != nil {
+			return nil, err
+		}
 
 		if returnValue, ok := result.(*object.Return); ok {
 			return returnValue.Value, nil
-		}
-
-		if errorValue, ok := result.(*object.Error); ok {
-			return nil, errors.New(errorValue.Message)
 		}
 	}
 
@@ -67,13 +74,12 @@ func evalStatements(statements []ast.Statement) (object.Object, error) {
 	var err error
 	for _, statement := range statements {
 		result, err = Eval(statement)
+		if err != nil {
+			return nil, err
+		}
 
 		if _, ok := result.(*object.Return); ok {
 			return result, nil
-		}
-
-		if errorValue, ok := result.(*object.Error); ok {
-			return nil, errors.New(errorValue.Message)
 		}
 	}
 
@@ -106,7 +112,7 @@ func evalBangOperator(right object.Object) (object.Object, error) {
 	case &object.False:
 		return &object.True, nil
 	default:
-		return nil, nil
+		return nil, errors.Errorf("type mismatch: !%s", right.Type())
 	}
 }
 
@@ -115,7 +121,7 @@ func evalMinusOperator(right object.Object) (object.Object, error) {
 	case *object.Integer:
 		return &object.Integer{Value: -rightObject.Value}, nil
 	default:
-		return nil, nil
+		return nil, errors.Errorf("type mismatch: -%s", right.Type())
 	}
 }
 
@@ -175,9 +181,7 @@ func evalPlusInfixOperator(left, right object.Object) (object.Object, error) {
 		return &object.Integer{Value: newValue}, nil
 	}
 
-	return &object.Error{
-		Message: fmt.Sprintf("type mismatch: %s + %s", left.Type(), right.Type()),
-	}, nil
+	return nil, errors.Errorf("type mismatch: %s + %s", left.Type(), right.Type())
 }
 
 func evalMinusInfixOperator(left, right object.Object) (object.Object, error) {
@@ -186,7 +190,7 @@ func evalMinusInfixOperator(left, right object.Object) (object.Object, error) {
 		return &object.Integer{Value: newValue}, nil
 	}
 
-	return nil, nil
+	return nil, errors.Errorf("type mismatch: %s - %s", left.Type(), right.Type())
 }
 
 func evalAsteriskInfixOperator(left, right object.Object) (object.Object, error) {
@@ -195,7 +199,7 @@ func evalAsteriskInfixOperator(left, right object.Object) (object.Object, error)
 		return &object.Integer{Value: newValue}, nil
 	}
 
-	return nil, nil
+	return nil, errors.Errorf("type mismatch: %s * %s", left.Type(), right.Type())
 }
 
 func evalAsteriskSlashOperator(left, right object.Object) (object.Object, error) {
@@ -204,7 +208,7 @@ func evalAsteriskSlashOperator(left, right object.Object) (object.Object, error)
 		return &object.Integer{Value: newValue}, nil
 	}
 
-	return nil, nil
+	return nil, errors.Errorf("type mismatch: %s / %s", left.Type(), right.Type())
 }
 
 func nativeBoolToBoolean(b bool) *object.Boolean {
