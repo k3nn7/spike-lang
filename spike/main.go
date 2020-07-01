@@ -9,16 +9,17 @@ import (
 )
 
 func main() {
-	l := lexer.New(os.Stdin)
-	p := parser.New(l)
+	lexerInstance := lexer.New(os.Stdin)
+	parserInstance := parser.New(lexerInstance)
+	environment := eval.NewEnvironment()
 
-	program, err := p.ParseProgram()
+	program, err := parserInstance.ParseProgram()
 	if err != nil {
 		fmt.Printf("Parser error: %s\n", err)
 		return
 	}
 
-	result, err := eval.Eval(program)
+	result, err := eval.Eval(program, environment)
 	if err != nil {
 		fmt.Printf("Runtime error: %s\n", err)
 		return

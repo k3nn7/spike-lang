@@ -46,6 +46,10 @@ func Test_Eval_withErrors(t *testing.T) {
 			input:         "2 / true",
 			expectedError: "type mismatch: integer / boolean",
 		},
+		{
+			input:         "x;",
+			expectedError: "undefined identifier: x",
+		},
 	}
 
 	for _, testCase := range testCases {
@@ -55,7 +59,7 @@ func Test_Eval_withErrors(t *testing.T) {
 
 			assert.NoError(t, err)
 
-			_, err = Eval(program)
+			_, err = Eval(program, NewEnvironment())
 			assert.EqualError(t, err, testCase.expectedError)
 		})
 	}

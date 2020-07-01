@@ -14,6 +14,7 @@ const prompt = ">> "
 
 func Start(in io.Reader, out io.Writer) {
 	scanner := bufio.NewScanner(in)
+	environment := eval.NewEnvironment()
 	for {
 		fmt.Fprint(out, prompt)
 		scanned := scanner.Scan()
@@ -30,7 +31,7 @@ func Start(in io.Reader, out io.Writer) {
 			return
 		}
 
-		result, err := eval.Eval(program)
+		result, err := eval.Eval(program, environment)
 		if err != nil {
 			fmt.Print(err)
 		}

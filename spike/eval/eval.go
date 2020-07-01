@@ -7,56 +7,61 @@ import (
 	"github.com/pkg/errors"
 )
 
-func Eval(node ast.Node) (object.Object, error) {
+func Eval(node ast.Node, environment *Environment) (object.Object, error) {
 	switch node := node.(type) {
 	case *ast.Program:
-		return evalProgram(node)
+		return evalProgram(node, environment)
 	case *ast.ExpressionStatement:
-		return Eval(node.Expression)
+		return Eval(node.Expression, environment)
 	case *ast.Integer:
 		return &object.Integer{Value: node.Value}, nil
 	case *ast.Boolean:
 		return evalBoolean(node)
 	case *ast.PrefixExpression:
-		right, err := Eval(node.Right)
+		right, err := Eval(node.Right, environment)
 		if err != nil {
 			return nil, err
 		}
 		return evalPrefixExpression(right, node.Operator)
 	case *ast.InfixExpression:
-		left, err := Eval(node.Left)
+		left, err := Eval(node.Left, environment)
 		if err != nil {
 			return nil, err
 		}
-		right, err := Eval(node.Right)
+		right, err := Eval(node.Right, environment)
 		if err != nil {
 			return nil, err
 		}
 
 		return evalInfixExpression(left, right, node.Operator)
 	case *ast.IfExpression:
-		condition, _ := Eval(node.Condition)
+		condition, _ := Eval(node.Condition, environment)
 		if equal, _ := condition.Equal(&object.True); equal {
-			return Eval(node.Then)
+			return Eval(node.Then, environment)
 		} else {
-			return Eval(node.Else)
+			return Eval(node.Else, environment)
 		}
 	case *ast.BlockStatement:
-		return evalStatements(node.Statements)
+		return evalStatements(node.Statements, environment)
 	case *ast.ReturnStatement:
-		result, _ := Eval(node.Result)
+		result, _ := Eval(node.Result, environment)
 		return &object.Return{Value: result}, nil
+	case *ast.LetStatement:
+		result, _ := Eval(node.Value, environment)
+		environment.Set(node.Name.Value, result)
+	case *ast.Identifier:
+		return evalIdentifier(node.Value, environment)
 	default:
 		return nil, errors.Errorf("Trying to evaluate unknown node: %T: %#v", node, node)
 	}
 	return nil, nil
 }
 
-func evalProgram(program *ast.Program) (object.Object, error) {
+func evalProgram(program *ast.Program, environment *Environment) (object.Object, error) {
 	var result object.Object
 	var err error
 	for _, statement := range program.Statements {
-		result, err = Eval(statement)
+		result, err = Eval(statement, environment)
 		if err != nil {
 			return nil, err
 		}
@@ -69,11 +74,11 @@ func evalProgram(program *ast.Program) (object.Object, error) {
 	return result, err
 }
 
-func evalStatements(statements []ast.Statement) (object.Object, error) {
+func evalStatements(statements []ast.Statement, environment *Environment) (object.Object, error) {
 	var result object.Object
 	var err error
 	for _, statement := range statements {
-		result, err = Eval(statement)
+		result, err = Eval(statement, environment)
 		if err != nil {
 			return nil, err
 		}
@@ -217,4 +222,8 @@ func nativeBoolToBoolean(b bool) *object.Boolean {
 	}
 
 	return &object.False
+}
+
+func evalIdentifier(name string, environment *Environment) (object.Object, error) {
+	return environment.Get(name)
 }
