@@ -27,6 +27,7 @@ const (
 	Or               TokenType = "or"
 	LeftBrace        TokenType = "leftBrace"
 	RightBrace       TokenType = "rightBrace"
+	Comma            TokenType = "comma"
 )
 
 var oneCharOperators = map[string]Token{
@@ -43,6 +44,7 @@ var oneCharOperators = map[string]Token{
 	">": GreaterThanToken,
 	"{": LeftBraceToken,
 	"}": RightBraceToken,
+	",": CommaToken,
 }
 
 var twoCharOperators = map[string]Token{
@@ -62,6 +64,7 @@ const (
 	False  TokenType = "false"
 	If     TokenType = "if"
 	Else   TokenType = "else"
+	Fn     TokenType = "fn"
 )
 
 var keywords = map[string]Token{
@@ -71,6 +74,7 @@ var keywords = map[string]Token{
 	"false":  FalseToken,
 	"if":     IfToken,
 	"else":   ElseToken,
+	"fn":     FnToken,
 }
 
 // Other
@@ -110,4 +114,6 @@ var (
 	ElseToken             = Token{Type: Else, Literal: "else"}
 	LeftBraceToken        = Token{Type: LeftBrace, Literal: "{"}
 	RightBraceToken       = Token{Type: RightBrace, Literal: "}"}
+	FnToken               = Token{Type: Fn, Literal: "fn"}
+	CommaToken            = Token{Type: Comma, Literal: ","}
 )
