@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"os"
 	"spike-interpreter-go/spike/eval"
+	"spike-interpreter-go/spike/eval/object"
 	"spike-interpreter-go/spike/lexer"
 	"spike-interpreter-go/spike/parser"
 )
@@ -11,7 +12,7 @@ import (
 func main() {
 	lexerInstance := lexer.New(os.Stdin)
 	parserInstance := parser.New(lexerInstance)
-	environment := eval.NewEnvironment()
+	environment := object.NewEnvironment()
 
 	program, err := parserInstance.ParseProgram()
 	if err != nil {

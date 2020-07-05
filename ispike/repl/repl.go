@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"io"
 	"spike-interpreter-go/spike/eval"
+	"spike-interpreter-go/spike/eval/object"
 	"spike-interpreter-go/spike/lexer"
 	"spike-interpreter-go/spike/parser"
 	"strings"
@@ -14,7 +15,7 @@ const prompt = ">> "
 
 func Start(in io.Reader, out io.Writer) {
 	scanner := bufio.NewScanner(in)
-	environment := eval.NewEnvironment()
+	environment := object.NewEnvironment()
 	for {
 		fmt.Fprint(out, prompt)
 		scanned := scanner.Scan()

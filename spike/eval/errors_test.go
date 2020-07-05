@@ -1,6 +1,7 @@
 package eval
 
 import (
+	"spike-interpreter-go/spike/eval/object"
 	"spike-interpreter-go/spike/lexer"
 	"spike-interpreter-go/spike/parser"
 	"strings"
@@ -59,7 +60,7 @@ func Test_Eval_withErrors(t *testing.T) {
 
 			assert.NoError(t, err)
 
-			_, err = Eval(program, NewEnvironment())
+			_, err = Eval(program, object.NewEnvironment())
 			assert.EqualError(t, err, testCase.expectedError)
 		})
 	}
