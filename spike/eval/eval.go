@@ -7,7 +7,7 @@ import (
 	"github.com/pkg/errors"
 )
 
-func Eval(node ast.Node, environment *Environment) (object.Object, error) {
+func Eval(node ast.Node, environment *object.Environment) (object.Object, error) {
 	switch node := node.(type) {
 	case *ast.Program:
 		return evalProgram(node, environment)
@@ -51,13 +51,37 @@ func Eval(node ast.Node, environment *Environment) (object.Object, error) {
 		environment.Set(node.Name.Value, result)
 	case *ast.Identifier:
 		return evalIdentifier(node.Value, environment)
+	case *ast.FunctionExpression:
+		return &object.Function{
+			Parameters:  node.Parameters,
+			Body:        node.Body,
+			Environment: environment,
+		}, nil
+	case *ast.CallExpression:
+		function, _ := Eval(node.Function, environment)
+		arguments, _ := evalExpressions(node.Arguments, environment)
+		return applyFunction(function, arguments)
 	default:
 		return nil, errors.Errorf("Trying to evaluate unknown node: %T: %#v", node, node)
 	}
 	return nil, nil
 }
 
-func evalProgram(program *ast.Program, environment *Environment) (object.Object, error) {
+func applyFunction(function object.Object, arguments []object.Object) (object.Object, error) {
+	functionObject, ok := function.(*object.Function)
+	if !ok {
+		return nil, nil
+	}
+
+	extendedEnvironment := object.ExtendEnvironment(functionObject.Environment)
+	for i, identifier := range functionObject.Parameters {
+		extendedEnvironment.Set(identifier.Value, arguments[i])
+	}
+
+	return Eval(functionObject.Body, extendedEnvironment)
+}
+
+func evalProgram(program *ast.Program, environment *object.Environment) (object.Object, error) {
 	var result object.Object
 	var err error
 	for _, statement := range program.Statements {
@@ -74,7 +98,7 @@ func evalProgram(program *ast.Program, environment *Environment) (object.Object,
 	return result, err
 }
 
-func evalStatements(statements []ast.Statement, environment *Environment) (object.Object, error) {
+func evalStatements(statements []ast.Statement, environment *object.Environment) (object.Object, error) {
 	var result object.Object
 	var err error
 	for _, statement := range statements {
@@ -89,6 +113,17 @@ func evalStatements(statements []ast.Statement, environment *Environment) (objec
 	}
 
 	return result, err
+}
+
+func evalExpressions(expressions []ast.Expression, environment *object.Environment) ([]object.Object, error) {
+	result := make([]object.Object, 0)
+
+	for _, expression := range expressions {
+		evaluated, _ := Eval(expression, environment)
+		result = append(result, evaluated)
+	}
+
+	return result, nil
 }
 
 func evalBoolean(node *ast.Boolean) (object.Object, error) {
@@ -224,6 +259,6 @@ func nativeBoolToBoolean(b bool) *object.Boolean {
 	return &object.False
 }
 
-func evalIdentifier(name string, environment *Environment) (object.Object, error) {
+func evalIdentifier(name string, environment *object.Environment) (object.Object, error) {
 	return environment.Get(name)
 }

@@ -39,7 +39,7 @@ func Test_Eval_AST(t *testing.T) {
 
 	for _, testCase := range testCases {
 		t.Run(testCase.input.String(), func(t *testing.T) {
-			result, err := Eval(testCase.input, NewEnvironment())
+			result, err := Eval(testCase.input, object.NewEnvironment())
 
 			assert.NoError(t, err)
 			assert.Equal(t, testCase.expected, result)
@@ -180,6 +180,14 @@ func Test_Eval_program(t *testing.T) {
 			input:    "let x = 5; let y = x; y;",
 			expected: &object.Integer{Value: 5},
 		},
+		{
+			input:    "fn (x) { x; }(5);",
+			expected: &object.Integer{Value: 5},
+		},
+		{
+			input:    "fn (x) { return x; }(5);",
+			expected: &object.Integer{Value: 5},
+		},
 	}
 
 	for _, testCase := range testCases {
@@ -188,7 +196,7 @@ func Test_Eval_program(t *testing.T) {
 			program, err := parser.New(l).ParseProgram()
 
 			assert.NoError(t, err)
-			result, err := Eval(program, NewEnvironment())
+			result, err := Eval(program, object.NewEnvironment())
 
 			assert.NoError(t, err)
 			assert.Equal(t, testCase.expected, result)

@@ -3,10 +3,11 @@ package object
 type ObjectType string
 
 const (
-	IntegerType ObjectType = "integer"
-	BooleanType ObjectType = "boolean"
-	NullType    ObjectType = "null"
-	ReturnType  ObjectType = "return"
+	IntegerType  ObjectType = "integer"
+	BooleanType  ObjectType = "boolean"
+	NullType     ObjectType = "null"
+	ReturnType   ObjectType = "return"
+	FunctionType ObjectType = "function"
 )
 
 type Ordering int8
