@@ -20,7 +20,6 @@ const (
 	sum
 	product
 	prefix
-	call
 )
 
 var precedences = map[lexer.TokenType]int{
@@ -59,6 +58,7 @@ func New(lexerInstance *lexer.Lexer) *Parser {
 	parser.addPrefixParser(lexer.Minus, parser.parsePrefixExpression)
 	parser.addPrefixParser(lexer.LeftParenthesis, parser.parseGroupedExpression)
 	parser.addPrefixParser(lexer.If, parser.parseIfExpression)
+	parser.addPrefixParser(lexer.Fn, parser.parseFunctionExpression)
 
 	parser.addInfixParser(lexer.Plus, parser.parseInfixExpression)
 	parser.addInfixParser(lexer.Asterisk, parser.parseInfixExpression)
@@ -187,6 +187,51 @@ func (parser *Parser) parseIfExpression() (ast.Expression, error) {
 	ifExpression.Else = statement
 
 	return ifExpression, nil
+}
+
+func (parser *Parser) parseFunctionExpression() (ast.Expression, error) {
+	functionExpression := &ast.FunctionExpression{Token: parser.currentToken}
+
+	parser.advanceToken()
+	if parser.currentToken.Type != lexer.LeftParenthesis {
+		return functionExpression, errors.Errorf("expected left parenthesis, got %s", parser.currentToken.Type)
+	}
+
+	for {
+		parser.advanceToken()
+		if parser.currentToken.Type == lexer.RightParenthesis {
+			break
+		}
+
+		if parser.currentToken.Type != lexer.Identifier {
+			return functionExpression, errors.Errorf("expected identifier, got %s", parser.currentToken.Type)
+		}
+
+		identifier, err := parser.parseIdentifier()
+		if err != nil {
+			return functionExpression, err
+		}
+		functionExpression.Parameters = append(functionExpression.Parameters, identifier.(*ast.Identifier))
+
+		parser.advanceToken()
+		if parser.currentToken.Type == lexer.RightParenthesis {
+			break
+		}
+
+		if parser.currentToken.Type != lexer.Comma {
+			return functionExpression, errors.Errorf("expected comma, got %s", parser.currentToken.Type)
+		}
+	}
+
+	parser.advanceToken()
+	statement, err := parser.parseStatement()
+	if err != nil {
+		return functionExpression, err
+	}
+
+	functionExpression.Body = statement
+
+	return functionExpression, nil
 }
 
 func (parser *Parser) parseReturnStatement() (ast.Statement, error) {

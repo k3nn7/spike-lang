@@ -10,11 +10,11 @@ import (
 )
 
 func Test_Parser_parseValidCode(t *testing.T) {
-	testCases := map[string]struct {
+	testCases := []struct {
 		code            string
 		expectedProgram *ast.Program
 	}{
-		"let statement": {
+		{
 			code: `let variable = 10;`,
 			expectedProgram: &ast.Program{Statements: []ast.Statement{
 				&ast.LetStatement{
@@ -30,7 +30,7 @@ func Test_Parser_parseValidCode(t *testing.T) {
 				},
 			}},
 		},
-		"return statement": {
+		{
 			code: `return 2 + 2;`,
 			expectedProgram: &ast.Program{Statements: []ast.Statement{
 				&ast.ReturnStatement{
@@ -61,8 +61,8 @@ func Test_Parser_parseValidCode(t *testing.T) {
 		},
 	}
 
-	for testCaseName, testCase := range testCases {
-		t.Run(testCaseName, func(t *testing.T) {
+	for _, testCase := range testCases {
+		t.Run(testCase.code, func(t *testing.T) {
 			program, err := New(lexer.New(strings.NewReader(testCase.code))).ParseProgram()
 
 			assert.NoError(t, err)
@@ -91,6 +91,18 @@ func Test_Parser_ParseProgram(t *testing.T) {
 		{
 			code:        "if (true == false) { let a = 10; } else { let a = 20; };",
 			expectedAst: "if (true == false) {\n  let a = 10;\n} else {\n  let a = 20;\n}\n",
+		},
+		{
+			code:        "fn (x, y) { return x + y; }",
+			expectedAst: "fn (x, y) {\n  return (x + y);\n}\n",
+		},
+		{
+			code:        "fn (x, y) { let x = 2; return x; }",
+			expectedAst: "fn (x, y) {\n  let x = 2;\n  return x;\n}\n",
+		},
+		{
+			code:        "fn (x) { x; }",
+			expectedAst: "fn (x) {\n  x;\n}\n",
 		},
 	}
 
