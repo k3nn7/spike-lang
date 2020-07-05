@@ -188,6 +188,10 @@ func Test_Eval_program(t *testing.T) {
 			input:    "fn (x) { return x; }(5);",
 			expected: &object.Integer{Value: 5},
 		},
+		{
+			input:    "fn (x) { return fn (y) { return x + y; }; }(5)(10);",
+			expected: &object.Integer{Value: 15},
+		},
 	}
 
 	for _, testCase := range testCases {

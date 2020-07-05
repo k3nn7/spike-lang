@@ -78,7 +78,16 @@ func applyFunction(function object.Object, arguments []object.Object) (object.Ob
 		extendedEnvironment.Set(identifier.Value, arguments[i])
 	}
 
-	return Eval(functionObject.Body, extendedEnvironment)
+	result, err := Eval(functionObject.Body, extendedEnvironment)
+	if err != nil {
+		return nil, err
+	}
+
+	if returnValue, ok := result.(*object.Return); ok {
+		return returnValue.Value, nil
+	}
+
+	return result, nil
 }
 
 func evalProgram(program *ast.Program, environment *object.Environment) (object.Object, error) {
