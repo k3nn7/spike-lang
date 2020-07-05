@@ -104,6 +104,14 @@ func Test_Parser_ParseProgram(t *testing.T) {
 			code:        "fn (x) { x; }",
 			expectedAst: "fn (x) {\n  x;\n}\n",
 		},
+		{
+			code:        "add(5);",
+			expectedAst: "add(5);\n",
+		},
+		{
+			code:        "add(x, 2 + 5);",
+			expectedAst: "add(x, (2 + 5));\n",
+		},
 	}
 
 	for _, testCase := range testCases {

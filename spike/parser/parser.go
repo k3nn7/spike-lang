@@ -20,21 +20,23 @@ const (
 	sum
 	product
 	prefix
+	call
 )
 
 var precedences = map[lexer.TokenType]int{
-	lexer.Plus:           sum,
-	lexer.Minus:          sum,
-	lexer.Asterisk:       product,
-	lexer.Slash:          product,
-	lexer.Equal:          equals,
-	lexer.NotEqual:       equals,
-	lexer.LessThan:       inequality,
-	lexer.GreaterThan:    inequality,
-	lexer.LessOrEqual:    inequality,
-	lexer.GreaterOrEqual: inequality,
-	lexer.And:            conjunction,
-	lexer.Or:             alternative,
+	lexer.Plus:            sum,
+	lexer.Minus:           sum,
+	lexer.Asterisk:        product,
+	lexer.Slash:           product,
+	lexer.Equal:           equals,
+	lexer.NotEqual:        equals,
+	lexer.LessThan:        inequality,
+	lexer.GreaterThan:     inequality,
+	lexer.LessOrEqual:     inequality,
+	lexer.GreaterOrEqual:  inequality,
+	lexer.And:             conjunction,
+	lexer.Or:              alternative,
+	lexer.LeftParenthesis: call,
 }
 
 type Parser struct {
@@ -72,6 +74,7 @@ func New(lexerInstance *lexer.Lexer) *Parser {
 	parser.addInfixParser(lexer.LessOrEqual, parser.parseInfixExpression)
 	parser.addInfixParser(lexer.Or, parser.parseInfixExpression)
 	parser.addInfixParser(lexer.And, parser.parseInfixExpression)
+	parser.addInfixParser(lexer.LeftParenthesis, parser.parseCallExpression)
 
 	return parser
 }
@@ -374,4 +377,49 @@ func (parser *Parser) parseBlockStatement() (ast.Statement, error) {
 
 	parser.advanceToken()
 	return blockStatement, nil
+}
+
+func (parser *Parser) parseCallExpression(function ast.Expression) (ast.Expression, error) {
+	callExpression := &ast.CallExpression{
+		Token:    parser.currentToken,
+		Function: function,
+	}
+
+	callArguments, err := parser.parseCallArguments()
+	if err != nil {
+		return callExpression, err
+	}
+
+	callExpression.Arguments = callArguments
+
+	return callExpression, nil
+}
+
+func (parser *Parser) parseCallArguments() ([]ast.Expression, error) {
+	arguments := make([]ast.Expression, 0)
+
+	for {
+		parser.advanceToken()
+		if parser.currentToken.Type == lexer.RightParenthesis {
+			break
+		}
+
+		argument, err := parser.parseExpression(lowest)
+		if err != nil {
+			return arguments, err
+		}
+
+		arguments = append(arguments, argument)
+
+		parser.advanceToken()
+		if parser.currentToken.Type == lexer.RightParenthesis {
+			break
+		}
+
+		if parser.currentToken.Type != lexer.Comma {
+			return arguments, errors.Errorf("expected comma, got %s", parser.currentToken.Type)
+		}
+	}
+
+	return arguments, nil
 }
