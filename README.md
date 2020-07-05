@@ -72,5 +72,5 @@ u.changeName("newName")
 - [x] Parsing booleans
 - [x] Parsing grouped expressions
 - [x] Parsing if-else expressions
-- [ ] Parsing function literals
-- [ ] Parsing call expressions
+- [x] Parsing function literals
+- [x] Parsing call expressions
