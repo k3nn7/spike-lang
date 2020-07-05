@@ -178,10 +178,11 @@ func (parser *Parser) parseIfExpression() (ast.Expression, error) {
 	}
 	ifExpression.Then = statement
 
-	if parser.currentToken.Type != lexer.Else {
+	if parser.peekToken.Type != lexer.Else {
 		return ifExpression, nil
 	}
 
+	parser.advanceToken()
 	parser.advanceToken()
 	statement, err = parser.parseStatement()
 	if err != nil {
@@ -375,7 +376,6 @@ func (parser *Parser) parseBlockStatement() (ast.Statement, error) {
 		}
 	}
 
-	parser.advanceToken()
 	return blockStatement, nil
 }
 
