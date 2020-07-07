@@ -61,6 +61,8 @@ func Eval(node ast.Node, environment *object.Environment) (object.Object, error)
 		function, _ := Eval(node.Function, environment)
 		arguments, _ := evalExpressions(node.Arguments, environment)
 		return applyFunction(function, arguments)
+	case *ast.String:
+		return &object.String{Value: node.Value}, nil
 	default:
 		return nil, errors.Errorf("Trying to evaluate unknown node: %T: %#v", node, node)
 	}

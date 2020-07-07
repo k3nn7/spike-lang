@@ -84,6 +84,7 @@ const (
 	Invalid    TokenType = "invalid"
 	Identifier TokenType = "identifier"
 	Integer    TokenType = "integer"
+	String     TokenType = "string"
 )
 
 // Predefined tokens

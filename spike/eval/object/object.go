@@ -4,6 +4,7 @@ type ObjectType string
 
 const (
 	IntegerType  ObjectType = "integer"
+	StringType   ObjectType = "string"
 	BooleanType  ObjectType = "boolean"
 	NullType     ObjectType = "null"
 	ReturnType   ObjectType = "return"

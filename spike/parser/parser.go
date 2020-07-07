@@ -61,6 +61,7 @@ func New(lexerInstance *lexer.Lexer) *Parser {
 	parser.addPrefixParser(lexer.LeftParenthesis, parser.parseGroupedExpression)
 	parser.addPrefixParser(lexer.If, parser.parseIfExpression)
 	parser.addPrefixParser(lexer.Fn, parser.parseFunctionExpression)
+	parser.addPrefixParser(lexer.String, parser.parseString)
 
 	parser.addInfixParser(lexer.Plus, parser.parseInfixExpression)
 	parser.addInfixParser(lexer.Asterisk, parser.parseInfixExpression)
@@ -294,6 +295,12 @@ func (parser *Parser) parseExpression(precedence int) (ast.Expression, error) {
 
 func (parser *Parser) parseIdentifier() (ast.Expression, error) {
 	expression := &ast.Identifier{Token: parser.currentToken, Value: parser.currentToken.Literal}
+
+	return expression, nil
+}
+
+func (parser *Parser) parseString() (ast.Expression, error) {
+	expression := &ast.String{Token: parser.currentToken, Value: parser.currentToken.Literal}
 
 	return expression, nil
 }

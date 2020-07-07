@@ -60,6 +60,14 @@ func (lexer *Lexer) readNextToken() (Token, error) {
 		return *integer, nil
 	}
 
+	str, err := lexer.tryReadString()
+	if err != nil {
+		return lexer.handleIOError(err)
+	}
+	if str != nil {
+		return *str, nil
+	}
+
 	invalidToken, err := lexer.reader.ReadByte()
 	return Token{Invalid, string(invalidToken)}, err
 }
@@ -153,6 +161,29 @@ func (lexer *Lexer) tryReadNumber() (*Token, error) {
 	return &Token{Integer, number}, nil
 }
 
+func (lexer *Lexer) tryReadString() (*Token, error) {
+	char, err := lexer.reader.Peek(1)
+	if err != nil {
+		return nil, err
+	}
+
+	if char[0] != '"' {
+		return nil, nil
+	}
+
+	_, err = lexer.reader.ReadByte()
+	if err != nil {
+		return nil, err
+	}
+
+	str, err := lexer.readString()
+	if err != nil {
+		return nil, err
+	}
+
+	return &Token{String, str}, nil
+}
+
 func (lexer *Lexer) readIdentifier() (string, error) {
 	var err error
 	c := make([]byte, 0, 1)
@@ -195,6 +226,22 @@ func (lexer *Lexer) readNumber() (string, error) {
 	}
 
 	return number.String(), nil
+}
+
+func (lexer *Lexer) readString() (string, error) {
+	str := strings.Builder{}
+	for {
+		b, err := lexer.reader.ReadByte()
+		if err != nil {
+			return str.String(), err
+		}
+
+		if b == '"' {
+			return str.String(), nil
+		}
+
+		str.WriteByte(b)
+	}
 }
 
 func (lexer *Lexer) handleIOError(err error) (Token, error) {

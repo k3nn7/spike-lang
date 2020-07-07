@@ -116,6 +116,10 @@ func Test_Parser_ParseProgram(t *testing.T) {
 			code:        "fn (x) { x; }(5)",
 			expectedAst: "fn (x) {\n  x;\n}(5);\n",
 		},
+		{
+			code:        "\"hello world\"",
+			expectedAst: "\"hello world\"\n",
+		},
 	}
 
 	for _, testCase := range testCases {
