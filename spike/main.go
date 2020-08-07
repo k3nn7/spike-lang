@@ -10,7 +10,13 @@ import (
 )
 
 func main() {
-	lexerInstance := lexer.New(os.Stdin)
+	input, err := os.Open(os.Args[1])
+	if err != nil {
+		fmt.Printf("Parser error: %s\n", err)
+		return
+	}
+
+	lexerInstance := lexer.New(input)
 	parserInstance := parser.New(lexerInstance)
 	environment := object.NewEnvironment()
 
