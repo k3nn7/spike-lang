@@ -196,6 +196,10 @@ func Test_Eval_program(t *testing.T) {
 			input:    "\"hello world\";",
 			expected: &object.String{Value: "hello world"},
 		},
+		{
+			input:    "len(\"hello world\");",
+			expected: &object.Integer{Value: 11},
+		},
 	}
 
 	for _, testCase := range testCases {

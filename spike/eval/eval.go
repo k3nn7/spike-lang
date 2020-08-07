@@ -70,6 +70,10 @@ func Eval(node ast.Node, environment *object.Environment) (object.Object, error)
 }
 
 func applyFunction(function object.Object, arguments []object.Object) (object.Object, error) {
+	if builtinFunction, ok := function.(*object.BuiltinFunction); ok {
+		return builtinFunction.Function(arguments...)
+	}
+
 	functionObject, ok := function.(*object.Function)
 	if !ok {
 		return nil, nil
@@ -271,5 +275,14 @@ func nativeBoolToBoolean(b bool) *object.Boolean {
 }
 
 func evalIdentifier(name string, environment *object.Environment) (object.Object, error) {
-	return environment.Get(name)
+	variable, err := environment.Get(name)
+	if err == nil {
+		return variable, nil
+	}
+
+	if builtin, ok := builtins[name]; ok {
+		return builtin, nil
+	}
+
+	return nil, err
 }
