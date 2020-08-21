@@ -21,6 +21,13 @@ func Test_Make(t *testing.T) {
 				254,
 			},
 		},
+		"OpAdd": {
+			opcode:   OpAdd,
+			operands: []int{},
+			expected: []byte{
+				byte(OpAdd),
+			},
+		},
 	}
 
 	for testCaseName, testCase := range testCases {
@@ -33,7 +40,7 @@ func Test_Make(t *testing.T) {
 }
 
 func Test_Instructions_String(t *testing.T) {
-	instruction1, err := Make(OpConstant, 1)
+	instruction1, err := Make(OpAdd)
 	assert.NoError(t, err)
 	instruction2, err := Make(OpConstant, 2)
 	assert.NoError(t, err)
@@ -41,9 +48,9 @@ func Test_Instructions_String(t *testing.T) {
 	assert.NoError(t, err)
 	instructions := []Instructions{instruction1, instruction2, instruction3}
 
-	expectedOutput := `0000 OpConstant 1
-0003 OpConstant 2
-0006 OpConstant 65535
+	expectedOutput := `0000 OpAdd
+0001 OpConstant 2
+0004 OpConstant 65535
 `
 
 	concattedInstructions := Instructions{}

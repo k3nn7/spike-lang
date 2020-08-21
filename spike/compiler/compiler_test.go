@@ -22,7 +22,13 @@ func Test_Compiler(t *testing.T) {
 	assert.NoError(t, err)
 	instruction2, err := code.Make(code.OpConstant, 1)
 	assert.NoError(t, err)
-	expectedInstructions := concatInstructions(instruction1, instruction2)
+	instruction3, err := code.Make(code.OpAdd)
+	assert.NoError(t, err)
+	expectedInstructions := concatInstructions(
+		instruction1,
+		instruction2,
+		instruction3,
+	)
 
 	l := lexer.New(strings.NewReader(input))
 	p := parser.New(l)

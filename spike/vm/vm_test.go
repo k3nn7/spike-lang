@@ -13,7 +13,7 @@ import (
 
 func Test_Run(t *testing.T) {
 	input := "1 + 2"
-	expectedStackTop := &object.Integer{Value: 2}
+	expectedStackTop := &object.Integer{Value: 3}
 
 	l := lexer.New(strings.NewReader(input))
 	p := parser.New(l)

@@ -15,7 +15,7 @@ func (instructions Instructions) String() string {
 
 	i := 0
 	for i < len(instructions) {
-		definition, err := Lookup(Opcode(instructions[0]))
+		definition, err := Lookup(Opcode(instructions[i]))
 		if err != nil {
 			fmt.Fprintf(&result, "ERROR: %s\n", err)
 			continue
@@ -42,6 +42,8 @@ func formatInstruction(definition *Definition, operands []int) string {
 	}
 
 	switch operandCount {
+	case 0:
+		return fmt.Sprintf("%s", definition.Name)
 	case 1:
 		return fmt.Sprintf("%s %d", definition.Name, operands[0])
 	}
@@ -54,6 +56,7 @@ type Opcode byte
 const (
 	Byte              = 1
 	OpConstant Opcode = iota
+	OpAdd
 )
 
 type Definition struct {
@@ -62,7 +65,14 @@ type Definition struct {
 }
 
 var definitions = map[Opcode]*Definition{
-	OpConstant: {Name: "OpConstant", OperandWidths: []int{2 * Byte}},
+	OpConstant: {
+		Name:          "OpConstant",
+		OperandWidths: []int{2 * Byte},
+	},
+	OpAdd: {
+		Name:          "OpAdd",
+		OperandWidths: []int{},
+	},
 }
 
 func Lookup(opcode Opcode) (*Definition, error) {

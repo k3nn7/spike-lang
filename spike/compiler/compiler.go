@@ -1,6 +1,7 @@
 package compiler
 
 import (
+	"fmt"
 	"spike-interpreter-go/spike/code"
 	"spike-interpreter-go/spike/eval/object"
 	"spike-interpreter-go/spike/parser/ast"
@@ -37,7 +38,17 @@ func (compiler *Compiler) Compile(node ast.Node) error {
 			return err
 		}
 
-		return compiler.Compile(node.Right)
+		err = compiler.Compile(node.Right)
+		if err != nil {
+			return err
+		}
+
+		switch node.Operator {
+		case "+":
+			compiler.emit(code.OpAdd)
+		default:
+			return fmt.Errorf("unknown operator: %s", node.Operator)
+		}
 
 	case *ast.Integer:
 		integer := &object.Integer{Value: node.Value}
