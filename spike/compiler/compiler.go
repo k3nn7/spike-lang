@@ -30,7 +30,11 @@ func (compiler *Compiler) Compile(node ast.Node) error {
 		}
 
 	case *ast.ExpressionStatement:
-		return compiler.Compile(node.Expression)
+		err := compiler.Compile(node.Expression)
+		if err != nil {
+			return err
+		}
+		compiler.emit(code.OpPop)
 
 	case *ast.InfixExpression:
 		err := compiler.Compile(node.Left)

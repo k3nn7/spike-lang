@@ -30,6 +30,6 @@ func Test_Run(t *testing.T) {
 	err = vm.Run()
 	assert.NoError(t, err)
 
-	stackTop := vm.StackTop()
+	stackTop := vm.LastPoppedStackElement()
 	assert.Equal(t, expectedStackTop, stackTop)
 }

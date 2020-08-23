@@ -4,10 +4,10 @@ import (
 	"bufio"
 	"fmt"
 	"io"
-	"spike-interpreter-go/spike/eval"
-	"spike-interpreter-go/spike/eval/object"
+	"spike-interpreter-go/spike/compiler"
 	"spike-interpreter-go/spike/lexer"
 	"spike-interpreter-go/spike/parser"
+	"spike-interpreter-go/spike/vm"
 	"strings"
 )
 
@@ -15,7 +15,6 @@ const prompt = ">> "
 
 func Start(in io.Reader, out io.Writer) {
 	scanner := bufio.NewScanner(in)
-	environment := object.NewEnvironment()
 	for {
 		fmt.Fprint(out, prompt)
 		scanned := scanner.Scan()
@@ -32,12 +31,21 @@ func Start(in io.Reader, out io.Writer) {
 			return
 		}
 
-		result, err := eval.Eval(program, environment)
+		c := compiler.New()
+		err = c.Compile(program)
 		if err != nil {
 			fmt.Print(err)
+			return
 		}
 
-		fmt.Fprint(out, result.Inspect())
+		v := vm.New(c.Bytecode())
+		err = v.Run()
+		if err != nil {
+			fmt.Print(err)
+			return
+		}
+
+		fmt.Fprint(out, v.LastPoppedStackElement().Inspect())
 		fmt.Fprint(out, "\n")
 	}
 }
