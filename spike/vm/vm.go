@@ -43,20 +43,37 @@ func (vm *VM) Run() error {
 
 			}
 
-		case code.OpAdd:
-			right := vm.pop()
-			left := vm.pop()
-			leftValue := left.(*object.Integer).Value
-			rightValue := right.(*object.Integer).Value
-
-			result := leftValue + rightValue
-			vm.push(&object.Integer{Value: result})
+		case code.OpAdd, code.OpSub, code.OpMul, code.OpDiv:
+			err := vm.executeBinaryIntegerOperation(op)
+			if err != nil {
+				return err
+			}
 
 		case code.OpPop:
 			vm.pop()
 		}
 	}
 	return nil
+}
+
+func (vm *VM) executeBinaryIntegerOperation(opcode code.Opcode) error {
+	right := vm.pop()
+	left := vm.pop()
+	leftValue := left.(*object.Integer).Value
+	rightValue := right.(*object.Integer).Value
+
+	var result int64
+	switch opcode {
+	case code.OpAdd:
+		result = leftValue + rightValue
+	case code.OpSub:
+		result = leftValue - rightValue
+	case code.OpMul:
+		result = leftValue * rightValue
+	case code.OpDiv:
+		result = leftValue / rightValue
+	}
+	return vm.push(&object.Integer{Value: result})
 }
 
 func (vm *VM) LastPoppedStackElement() object.Object {

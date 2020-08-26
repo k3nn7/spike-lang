@@ -8,6 +8,50 @@ import (
 	"github.com/pkg/errors"
 )
 
+type Opcode byte
+
+const (
+	Byte              = 1
+	OpConstant Opcode = iota
+	OpAdd
+	OpSub
+	OpMul
+	OpDiv
+	OpPop
+)
+
+type Definition struct {
+	Name          string
+	OperandWidths []int
+}
+
+var definitions = map[Opcode]*Definition{
+	OpConstant: {
+		Name:          "OpConstant",
+		OperandWidths: []int{2 * Byte},
+	},
+	OpAdd: {
+		Name:          "OpAdd",
+		OperandWidths: []int{},
+	},
+	OpSub: {
+		Name:          "OpSub",
+		OperandWidths: []int{},
+	},
+	OpMul: {
+		Name:          "OpMul",
+		OperandWidths: []int{},
+	},
+	OpDiv: {
+		Name:          "OpDiv",
+		OperandWidths: []int{},
+	},
+	OpPop: {
+		Name:          "OpPop",
+		OperandWidths: []int{},
+	},
+}
+
 type Instructions []byte
 
 func (instructions Instructions) String() string {
@@ -49,35 +93,6 @@ func formatInstruction(definition *Definition, operands []int) string {
 	}
 
 	return fmt.Sprintf("ERROR: unhandled operandCount for %s\n", definition.Name)
-}
-
-type Opcode byte
-
-const (
-	Byte              = 1
-	OpConstant Opcode = iota
-	OpAdd
-	OpPop
-)
-
-type Definition struct {
-	Name          string
-	OperandWidths []int
-}
-
-var definitions = map[Opcode]*Definition{
-	OpConstant: {
-		Name:          "OpConstant",
-		OperandWidths: []int{2 * Byte},
-	},
-	OpAdd: {
-		Name:          "OpAdd",
-		OperandWidths: []int{},
-	},
-	OpPop: {
-		Name:          "OpPop",
-		OperandWidths: []int{},
-	},
 }
 
 func Lookup(opcode Opcode) (*Definition, error) {

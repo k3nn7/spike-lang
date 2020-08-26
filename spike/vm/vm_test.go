@@ -12,16 +12,44 @@ import (
 )
 
 func Test_Run(t *testing.T) {
-	input := "1 + 2"
-	expectedStackTop := &object.Integer{Value: 3}
+	testCases := []struct {
+		code             string
+		expectedStackTop object.Object
+	}{
+		{
+			code:             "1 + 2",
+			expectedStackTop: &object.Integer{Value: 3},
+		},
+		{
+			code:             "3 * 5",
+			expectedStackTop: &object.Integer{Value: 15},
+		},
+		{
+			code:             "30 / (1 + 2)",
+			expectedStackTop: &object.Integer{Value: 10},
+		},
+		{
+			code:             "100 / (5 - 6) * 2",
+			expectedStackTop: &object.Integer{Value: -200},
+		},
+	}
 
+	for _, testCase := range testCases {
+		t.Run(testCase.code, func(t *testing.T) {
+			stackTop := runInVM(t, testCase.code)
+			assert.Equal(t, testCase.expectedStackTop, stackTop)
+		})
+	}
+}
+
+func runInVM(t *testing.T, input string) object.Object {
 	l := lexer.New(strings.NewReader(input))
 	p := parser.New(l)
+	c := compiler.New()
 
 	program, err := p.ParseProgram()
 	assert.NoError(t, err)
 
-	c := compiler.New()
 	err = c.Compile(program)
 	assert.NoError(t, err)
 
@@ -30,6 +58,5 @@ func Test_Run(t *testing.T) {
 	err = vm.Run()
 	assert.NoError(t, err)
 
-	stackTop := vm.LastPoppedStackElement()
-	assert.Equal(t, expectedStackTop, stackTop)
+	return vm.LastPoppedStackElement()
 }

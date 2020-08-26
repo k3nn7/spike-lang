@@ -40,25 +40,26 @@ func Test_Make(t *testing.T) {
 }
 
 func Test_Instructions_String(t *testing.T) {
-	instruction1, err := Make(OpAdd)
-	assert.NoError(t, err)
-	instruction2, err := Make(OpConstant, 2)
-	assert.NoError(t, err)
-	instruction3, err := Make(OpConstant, 65535)
-	assert.NoError(t, err)
-	instructions := []Instructions{instruction1, instruction2, instruction3}
+	instructions := NewBuilder().
+		Make(OpConstant, 2).
+		Make(OpConstant, 65535).
+		Make(OpAdd).
+		Make(OpSub).
+		Make(OpMul).
+		Make(OpDiv).
+		Make(OpPop).
+		Build()
 
-	expectedOutput := `0000 OpAdd
-0001 OpConstant 2
-0004 OpConstant 65535
+	expectedOutput := `0000 OpConstant 2
+0003 OpConstant 65535
+0006 OpAdd
+0007 OpSub
+0008 OpMul
+0009 OpDiv
+0010 OpPop
 `
 
-	concattedInstructions := Instructions{}
-	for _, instruction := range instructions {
-		concattedInstructions = append(concattedInstructions, instruction...)
-	}
-
-	assert.Equal(t, expectedOutput, concattedInstructions.String())
+	assert.Equal(t, expectedOutput, instructions.String())
 }
 
 func Test_ReadOperands(t *testing.T) {
