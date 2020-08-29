@@ -34,11 +34,31 @@ func Test_Run(t *testing.T) {
 		},
 		{
 			code:             "true",
-			expectedStackTop: &object.Boolean{Value: true},
+			expectedStackTop: True,
 		},
 		{
 			code:             "false",
-			expectedStackTop: &object.Boolean{Value: false},
+			expectedStackTop: False,
+		},
+		{
+			code:             "1 < 2",
+			expectedStackTop: True,
+		},
+		{
+			code:             "1 > 2",
+			expectedStackTop: False,
+		},
+		{
+			code:             "1 == 2",
+			expectedStackTop: False,
+		},
+		{
+			code:             "2 == 2",
+			expectedStackTop: True,
+		},
+		{
+			code:             "1 != 2",
+			expectedStackTop: True,
 		},
 	}
 

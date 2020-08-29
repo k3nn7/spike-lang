@@ -85,6 +85,58 @@ func Test_Compiler(t *testing.T) {
 				Make(code.OpPop).
 				Build(),
 		},
+		{
+			code: "1 > 2",
+			expectedConstants: []object.Object{
+				&object.Integer{Value: 1},
+				&object.Integer{Value: 2},
+			},
+			expectedInstructions: code.NewBuilder().
+				Make(code.OpConstant, 0).
+				Make(code.OpConstant, 1).
+				Make(code.OpGreaterThan).
+				Make(code.OpPop).
+				Build(),
+		},
+		{
+			code: "1 < 2",
+			expectedConstants: []object.Object{
+				&object.Integer{Value: 2},
+				&object.Integer{Value: 1},
+			},
+			expectedInstructions: code.NewBuilder().
+				Make(code.OpConstant, 0).
+				Make(code.OpConstant, 1).
+				Make(code.OpGreaterThan).
+				Make(code.OpPop).
+				Build(),
+		},
+		{
+			code: "1 == 2",
+			expectedConstants: []object.Object{
+				&object.Integer{Value: 1},
+				&object.Integer{Value: 2},
+			},
+			expectedInstructions: code.NewBuilder().
+				Make(code.OpConstant, 0).
+				Make(code.OpConstant, 1).
+				Make(code.OpEqual).
+				Make(code.OpPop).
+				Build(),
+		},
+		{
+			code: "1 != 2",
+			expectedConstants: []object.Object{
+				&object.Integer{Value: 1},
+				&object.Integer{Value: 2},
+			},
+			expectedInstructions: code.NewBuilder().
+				Make(code.OpConstant, 0).
+				Make(code.OpConstant, 1).
+				Make(code.OpNotEqual).
+				Make(code.OpPop).
+				Build(),
+		},
 	}
 
 	for _, testCase := range testCases {
