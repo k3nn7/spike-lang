@@ -18,6 +18,8 @@ const (
 	OpMul
 	OpDiv
 	OpPop
+	OpTrue
+	OpFalse
 )
 
 type Definition struct {
@@ -48,6 +50,14 @@ var definitions = map[Opcode]*Definition{
 	},
 	OpPop: {
 		Name:          "OpPop",
+		OperandWidths: []int{},
+	},
+	OpTrue: {
+		Name:          "OpTrue",
+		OperandWidths: []int{},
+	},
+	OpFalse: {
+		Name:          "OpFalse",
 		OperandWidths: []int{},
 	},
 }

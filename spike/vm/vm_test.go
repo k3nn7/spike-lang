@@ -32,6 +32,14 @@ func Test_Run(t *testing.T) {
 			code:             "100 / (5 - 6) * 2",
 			expectedStackTop: &object.Integer{Value: -200},
 		},
+		{
+			code:             "true",
+			expectedStackTop: &object.Boolean{Value: true},
+		},
+		{
+			code:             "false",
+			expectedStackTop: &object.Boolean{Value: false},
+		},
 	}
 
 	for _, testCase := range testCases {
