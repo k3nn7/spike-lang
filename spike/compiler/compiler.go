@@ -5,6 +5,8 @@ import (
 	"spike-interpreter-go/spike/code"
 	"spike-interpreter-go/spike/eval/object"
 	"spike-interpreter-go/spike/parser/ast"
+
+	"github.com/pkg/errors"
 )
 
 type Compiler struct {
@@ -80,6 +82,21 @@ func (compiler *Compiler) Compile(node ast.Node) error {
 			compiler.emit(code.OpGreaterThan)
 		default:
 			return fmt.Errorf("unknown operator: %s", node.Operator)
+		}
+
+	case *ast.PrefixExpression:
+		err := compiler.Compile(node.Right)
+		if err != nil {
+			return err
+		}
+
+		switch node.Operator {
+		case "!":
+			compiler.emit(code.OpBang)
+		case "-":
+			compiler.emit(code.OpMinus)
+		default:
+			return errors.Errorf("invalid prefix operator: %s", node.Operator)
 		}
 
 	case *ast.Integer:

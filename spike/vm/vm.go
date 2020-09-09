@@ -74,6 +74,18 @@ func (vm *VM) Run() error {
 
 		case code.OpPop:
 			vm.pop()
+
+		case code.OpBang:
+			err := vm.executeBangOperator()
+			if err != nil {
+				return err
+			}
+
+		case code.OpMinus:
+			err := vm.executeMinusOperator()
+			if err != nil {
+				return err
+			}
 		}
 	}
 	return nil
@@ -146,6 +158,24 @@ func (vm *VM) executeBooleanComparison(left object.Object, right object.Object, 
 	}
 
 	return errors.Errorf("unexpected operation: %d", op)
+}
+
+func (vm *VM) executeBangOperator() error {
+	operand := vm.pop()
+
+	switch operand {
+	case True:
+		return vm.push(False)
+	case False:
+		return vm.push(True)
+	default:
+		return errors.Errorf("invalid operand for bang prefix operator: %#v", operand)
+	}
+}
+
+func (vm *VM) executeMinusOperator() error {
+	value := vm.pop().(*object.Integer).Value
+	return vm.push(&object.Integer{Value: -value})
 }
 
 func nativeBoolToBoolean(nativeBool bool) object.Object {

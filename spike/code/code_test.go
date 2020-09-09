@@ -48,6 +48,8 @@ func Test_Instructions_String(t *testing.T) {
 		Make(OpMul).
 		Make(OpDiv).
 		Make(OpPop).
+		Make(OpMinus).
+		Make(OpBang).
 		Build()
 
 	expectedOutput := `0000 OpConstant 2
@@ -57,6 +59,8 @@ func Test_Instructions_String(t *testing.T) {
 0008 OpMul
 0009 OpDiv
 0010 OpPop
+0011 OpMinus
+0012 OpBang
 `
 
 	assert.Equal(t, expectedOutput, instructions.String())

@@ -60,6 +60,14 @@ func Test_Run(t *testing.T) {
 			code:             "1 != 2",
 			expectedStackTop: True,
 		},
+		{
+			code:             "-5",
+			expectedStackTop: &object.Integer{Value: -5},
+		},
+		{
+			code:             "!false",
+			expectedStackTop: True,
+		},
 	}
 
 	for _, testCase := range testCases {
