@@ -9,9 +9,17 @@ import (
 	"github.com/pkg/errors"
 )
 
+type EmittedInstruction struct {
+	Opcode   code.Opcode
+	Position int
+}
+
 type Compiler struct {
 	instructions code.Instructions
 	constants    []object.Object
+
+	lastInstruction     EmittedInstruction
+	previousInstruction EmittedInstruction
 }
 
 func New() *Compiler {
@@ -37,6 +45,14 @@ func (compiler *Compiler) Compile(node ast.Node) error {
 			return err
 		}
 		compiler.emit(code.OpPop)
+
+	case *ast.BlockStatement:
+		for _, statement := range node.Statements {
+			err := compiler.Compile(statement)
+			if err != nil {
+				return err
+			}
+		}
 
 	case *ast.InfixExpression:
 		if node.Operator == "<" {
@@ -109,6 +125,26 @@ func (compiler *Compiler) Compile(node ast.Node) error {
 		} else {
 			compiler.emit(code.OpFalse)
 		}
+
+	case *ast.IfExpression:
+		err := compiler.Compile(node.Condition)
+		if err != nil {
+			return err
+		}
+
+		jumpNotTrueIndex := compiler.emit(code.OpJumpNotTrue, -1)
+
+		err = compiler.Compile(node.Then)
+		if err != nil {
+			return err
+		}
+
+		if compiler.lastInstruction.Opcode == code.OpPop {
+			compiler.removeLastInstruction()
+		}
+
+		afterThenIndex := len(compiler.instructions)
+		compiler.changeOperand(jumpNotTrueIndex, afterThenIndex)
 	}
 
 	return nil
@@ -124,13 +160,38 @@ func (compiler *Compiler) emit(opcode code.Opcode, operands ...int) int {
 
 	newInstructionIndex := len(compiler.instructions)
 	compiler.instructions = append(compiler.instructions, instruction...)
+
+	compiler.previousInstruction = compiler.lastInstruction
+	compiler.lastInstruction = EmittedInstruction{
+		Opcode:   opcode,
+		Position: newInstructionIndex,
+	}
+
 	return newInstructionIndex
+}
+
+func (compiler *Compiler) removeLastInstruction() {
+	compiler.instructions = compiler.instructions[:compiler.lastInstruction.Position]
+	compiler.lastInstruction = compiler.previousInstruction
+}
+
+func (compiler *Compiler) changeOperand(instructionIndex, operand int) {
+	opcode := code.Opcode(compiler.instructions[instructionIndex])
+	newInstruction, _ := code.Make(opcode, operand)
+
+	compiler.replaceInstruction(instructionIndex, newInstruction)
 }
 
 func (compiler *Compiler) Bytecode() *Bytecode {
 	return &Bytecode{
 		Instructions: compiler.instructions,
 		Constants:    compiler.constants,
+	}
+}
+
+func (compiler *Compiler) replaceInstruction(instructionIndex int, instruction []byte) {
+	for i := 0; i < len(instruction); i++ {
+		compiler.instructions[instructionIndex+i] = instruction[i]
 	}
 }
 
