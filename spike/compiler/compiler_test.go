@@ -172,6 +172,24 @@ func Test_Compiler(t *testing.T) {
 				Make(code.OpPop).
 				Build(),
 		},
+		{
+			code: "if (true) { 10 } else { 20 }; 3333",
+			expectedConstants: []object.Object{
+				&object.Integer{Value: 10},
+				&object.Integer{Value: 20},
+				&object.Integer{Value: 3333},
+			},
+			expectedInstructions: code.NewBuilder().
+				Make(code.OpTrue).
+				Make(code.OpJumpNotTrue, 10).
+				Make(code.OpConstant, 0).
+				Make(code.OpJump, 13).
+				Make(code.OpConstant, 1).
+				Make(code.OpPop).
+				Make(code.OpConstant, 2).
+				Make(code.OpPop).
+				Build(),
+		},
 	}
 
 	for _, testCase := range testCases {

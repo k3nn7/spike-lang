@@ -143,8 +143,27 @@ func (compiler *Compiler) Compile(node ast.Node) error {
 			compiler.removeLastInstruction()
 		}
 
-		afterThenIndex := len(compiler.instructions)
-		compiler.changeOperand(jumpNotTrueIndex, afterThenIndex)
+		if node.Else == nil {
+			afterThenIndex := len(compiler.instructions)
+			compiler.changeOperand(jumpNotTrueIndex, afterThenIndex)
+		} else {
+			jumpIndex := compiler.emit(code.OpJump, -1)
+
+			afterThenIndex := len(compiler.instructions)
+			compiler.changeOperand(jumpNotTrueIndex, afterThenIndex)
+
+			err := compiler.Compile(node.Else)
+			if err != nil {
+				return err
+			}
+
+			if compiler.lastInstruction.Opcode == code.OpPop {
+				compiler.removeLastInstruction()
+			}
+
+			afterElseIndex := len(compiler.instructions)
+			compiler.changeOperand(jumpIndex, afterElseIndex)
+		}
 	}
 
 	return nil
