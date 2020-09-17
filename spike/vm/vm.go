@@ -86,6 +86,19 @@ func (vm *VM) Run() error {
 			if err != nil {
 				return err
 			}
+
+		case code.OpJump:
+			jumpIndex := binary.BigEndian.Uint16(vm.instructions[ip+1:])
+			ip = int(jumpIndex) - 1
+
+		case code.OpJumpNotTrue:
+			jumpIndex := binary.BigEndian.Uint16(vm.instructions[ip+1:])
+			ip += 2
+
+			condition := vm.pop().(*object.Boolean).Value
+			if !condition {
+				ip = int(jumpIndex) - 1
+			}
 		}
 	}
 	return nil
