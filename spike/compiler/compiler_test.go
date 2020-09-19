@@ -164,11 +164,21 @@ func Test_Compiler(t *testing.T) {
 				&object.Integer{Value: 3333},
 			},
 			expectedInstructions: code.NewBuilder().
+				// 0000
 				Make(code.OpTrue).
-				Make(code.OpJumpNotTrue, 7).
+				// 0001
+				Make(code.OpJumpNotTrue, 10).
+				// 0004
 				Make(code.OpConstant, 0).
+				// 0007
+				Make(code.OpJump, 11).
+				// 0010
+				Make(code.OpNull).
+				// 0011
 				Make(code.OpPop).
+				// 0012
 				Make(code.OpConstant, 1).
+				// 0015
 				Make(code.OpPop).
 				Build(),
 		},

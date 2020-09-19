@@ -88,6 +88,10 @@ func Test_Run(t *testing.T) {
 			code:             "if (2 < 1) { 10 } else { 20 }",
 			expectedStackTop: &object.Integer{Value: 20},
 		},
+		{
+			code:             "if (false) { 10 };",
+			expectedStackTop: Null,
+		},
 	}
 
 	for _, testCase := range testCases {

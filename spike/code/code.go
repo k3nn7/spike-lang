@@ -27,6 +27,7 @@ const (
 	OpBang
 	OpJumpNotTrue
 	OpJump
+	OpNull
 )
 
 type Definition struct {
@@ -94,6 +95,10 @@ var definitions = map[Opcode]*Definition{
 	OpJumpNotTrue: {
 		Name:          "OpJumpNotTrue",
 		OperandWidths: []int{2 * Byte},
+	},
+	OpNull: {
+		Name:          "OpNull",
+		OperandWidths: []int{},
 	},
 }
 

@@ -144,8 +144,13 @@ func (compiler *Compiler) Compile(node ast.Node) error {
 		}
 
 		if node.Else == nil {
-			afterThenIndex := len(compiler.instructions)
-			compiler.changeOperand(jumpNotTrueIndex, afterThenIndex)
+			jumpIndex := compiler.emit(code.OpJump, -1)
+			afterJumpIndex := len(compiler.instructions)
+			compiler.emit(code.OpNull)
+			afterNullIndex := len(compiler.instructions)
+
+			compiler.changeOperand(jumpIndex, afterNullIndex)
+			compiler.changeOperand(jumpNotTrueIndex, afterJumpIndex)
 		} else {
 			jumpIndex := compiler.emit(code.OpJump, -1)
 
