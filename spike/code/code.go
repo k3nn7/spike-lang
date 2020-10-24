@@ -28,6 +28,8 @@ const (
 	OpJumpNotTrue
 	OpJump
 	OpNull
+	OpSetGlobal
+	OpGetGlobal
 )
 
 type Definition struct {
@@ -99,6 +101,14 @@ var definitions = map[Opcode]*Definition{
 	OpNull: {
 		Name:          "OpNull",
 		OperandWidths: []int{},
+	},
+	OpSetGlobal: {
+		Name:          "OpSetGlobal",
+		OperandWidths: []int{2},
+	},
+	OpGetGlobal: {
+		Name:          "OpGetGlobal",
+		OperandWidths: []int{2},
 	},
 }
 

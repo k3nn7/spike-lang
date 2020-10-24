@@ -200,6 +200,45 @@ func Test_Compiler(t *testing.T) {
 				Make(code.OpPop).
 				Build(),
 		},
+		{
+			code: `let one = 1; let two = 2;`,
+			expectedConstants: []object.Object{
+				&object.Integer{Value: 1},
+				&object.Integer{Value: 2},
+			},
+			expectedInstructions: code.NewBuilder().
+				Make(code.OpConstant, 0).
+				Make(code.OpSetGlobal, 0).
+				Make(code.OpConstant, 1).
+				Make(code.OpSetGlobal, 1).
+				Build(),
+		},
+		{
+			code: `let one = 1; one;`,
+			expectedConstants: []object.Object{
+				&object.Integer{Value: 1},
+			},
+			expectedInstructions: code.NewBuilder().
+				Make(code.OpConstant, 0).
+				Make(code.OpSetGlobal, 0).
+				Make(code.OpGetGlobal, 0).
+				Make(code.OpPop).
+				Build(),
+		},
+		{
+			code: `let one = 1; let two = one; two;`,
+			expectedConstants: []object.Object{
+				&object.Integer{Value: 1},
+			},
+			expectedInstructions: code.NewBuilder().
+				Make(code.OpConstant, 0).
+				Make(code.OpSetGlobal, 0).
+				Make(code.OpGetGlobal, 0).
+				Make(code.OpSetGlobal, 1).
+				Make(code.OpGetGlobal, 1).
+				Make(code.OpPop).
+				Build(),
+		},
 	}
 
 	for _, testCase := range testCases {

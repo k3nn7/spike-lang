@@ -53,6 +53,8 @@ func Test_Instructions_String(t *testing.T) {
 		Make(OpJumpNotTrue, 256).
 		Make(OpJump, 128).
 		Make(OpNull).
+		Make(OpSetGlobal, 256).
+		Make(OpGetGlobal, 256).
 		Build()
 
 	expectedOutput := `0000 OpConstant 2
@@ -67,6 +69,8 @@ func Test_Instructions_String(t *testing.T) {
 0013 OpJumpNotTrue 256
 0016 OpJump 128
 0019 OpNull
+0020 OpSetGlobal 256
+0023 OpGetGlobal 256
 `
 
 	assert.Equal(t, expectedOutput, instructions.String())

@@ -17,6 +17,7 @@ type EmittedInstruction struct {
 type Compiler struct {
 	instructions code.Instructions
 	constants    []object.Object
+	symbolTable  *SymbolTable
 
 	lastInstruction     EmittedInstruction
 	previousInstruction EmittedInstruction
@@ -26,6 +27,7 @@ func New() *Compiler {
 	return &Compiler{
 		instructions: code.Instructions{},
 		constants:    []object.Object{},
+		symbolTable:  NewSymbolTable(),
 	}
 }
 
@@ -169,6 +171,23 @@ func (compiler *Compiler) Compile(node ast.Node) error {
 			afterElseIndex := len(compiler.instructions)
 			compiler.changeOperand(jumpIndex, afterElseIndex)
 		}
+
+	case *ast.LetStatement:
+		err := compiler.Compile(node.Value)
+		if err != nil {
+			return err
+		}
+
+		symbol := compiler.symbolTable.Define(node.Name.Value)
+		compiler.emit(code.OpSetGlobal, symbol.Index)
+
+	case *ast.Identifier:
+		symbol, ok := compiler.symbolTable.Resolve(node.Value)
+		if !ok {
+			return errors.Errorf("unable to resolve identifier: %s", node.Value)
+		}
+
+		compiler.emit(code.OpGetGlobal, symbol.Index)
 	}
 
 	return nil
