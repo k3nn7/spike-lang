@@ -60,7 +60,13 @@ func (vm *VM) Run() error {
 
 			}
 
-		case code.OpAdd, code.OpSub, code.OpMul, code.OpDiv:
+		case code.OpAdd:
+			err := vm.executePlusOperation()
+			if err != nil {
+				return err
+			}
+
+		case code.OpSub, code.OpMul, code.OpDiv:
 			err := vm.executeBinaryIntegerOperation(op)
 			if err != nil {
 				return err
@@ -137,6 +143,27 @@ func (vm *VM) Run() error {
 	return nil
 }
 
+func (vm *VM) executePlusOperation() error {
+	right := vm.pop()
+	left := vm.pop()
+
+	if left.Type() == object.IntegerType && right.Type() == object.IntegerType {
+		leftValue := left.(*object.Integer).Value
+		rightValue := right.(*object.Integer).Value
+
+		result := &object.Integer{Value: leftValue + rightValue}
+		return vm.push(result)
+	} else if left.Type() == object.StringType && right.Type() == object.StringType {
+		leftValue := left.(*object.String).Value
+		rightValue := right.(*object.String).Value
+
+		result := &object.String{Value: leftValue + rightValue}
+		return vm.push(result)
+	}
+
+	return nil
+}
+
 func (vm *VM) executeBinaryIntegerOperation(opcode code.Opcode) error {
 	right := vm.pop()
 	left := vm.pop()
@@ -145,8 +172,6 @@ func (vm *VM) executeBinaryIntegerOperation(opcode code.Opcode) error {
 
 	var result int64
 	switch opcode {
-	case code.OpAdd:
-		result = leftValue + rightValue
 	case code.OpSub:
 		result = leftValue - rightValue
 	case code.OpMul:

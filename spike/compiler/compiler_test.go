@@ -239,6 +239,29 @@ func Test_Compiler(t *testing.T) {
 				Make(code.OpPop).
 				Build(),
 		},
+		{
+			code: `"spike"`,
+			expectedConstants: []object.Object{
+				&object.String{Value: "spike"},
+			},
+			expectedInstructions: code.NewBuilder().
+				Make(code.OpConstant, 0).
+				Make(code.OpPop).
+				Build(),
+		},
+		{
+			code: `"spike " + "language"`,
+			expectedConstants: []object.Object{
+				&object.String{Value: "spike "},
+				&object.String{Value: "language"},
+			},
+			expectedInstructions: code.NewBuilder().
+				Make(code.OpConstant, 0).
+				Make(code.OpConstant, 1).
+				Make(code.OpAdd).
+				Make(code.OpPop).
+				Build(),
+		},
 	}
 
 	for _, testCase := range testCases {

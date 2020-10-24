@@ -104,6 +104,14 @@ func Test_Run(t *testing.T) {
 			code:             "let one = 1; let two = one + one; one + two;",
 			expectedStackTop: &object.Integer{Value: 3},
 		},
+		{
+			code:             `"spike"`,
+			expectedStackTop: &object.String{Value: "spike"},
+		},
+		{
+			code:             `"spike " + "language"`,
+			expectedStackTop: &object.String{Value: "spike language"},
+		},
 	}
 
 	for _, testCase := range testCases {
