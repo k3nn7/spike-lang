@@ -31,6 +31,14 @@ func New() *Compiler {
 	}
 }
 
+func NewWithState(symbolTable *SymbolTable, constants []object.Object) *Compiler {
+	compiler := New()
+	compiler.symbolTable = symbolTable
+	compiler.constants = constants
+
+	return compiler
+}
+
 func (compiler *Compiler) Compile(node ast.Node) error {
 	switch node := node.(type) {
 	case *ast.Program:

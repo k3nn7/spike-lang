@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"io"
 	"spike-interpreter-go/spike/compiler"
+	"spike-interpreter-go/spike/eval/object"
 	"spike-interpreter-go/spike/lexer"
 	"spike-interpreter-go/spike/parser"
 	"spike-interpreter-go/spike/vm"
@@ -15,8 +16,18 @@ const prompt = ">> "
 
 func Start(in io.Reader, out io.Writer) {
 	scanner := bufio.NewScanner(in)
+
+	constants := []object.Object{}
+	globals := make([]object.Object, vm.GlobalsSize)
+	symbolTable := compiler.NewSymbolTable()
+
 	for {
-		fmt.Fprint(out, prompt)
+		_, err := fmt.Fprint(out, prompt)
+		if err != nil {
+			fmt.Print(err)
+			return
+		}
+
 		scanned := scanner.Scan()
 		if !scanned {
 			return
@@ -31,21 +42,30 @@ func Start(in io.Reader, out io.Writer) {
 			return
 		}
 
-		c := compiler.New()
+		c := compiler.NewWithState(symbolTable, constants)
 		err = c.Compile(program)
 		if err != nil {
 			fmt.Print(err)
 			return
 		}
 
-		v := vm.New(c.Bytecode())
+		v := vm.NewWithGlobalStore(c.Bytecode(), globals)
 		err = v.Run()
 		if err != nil {
 			fmt.Print(err)
 			return
 		}
 
-		fmt.Fprint(out, v.LastPoppedStackElement().Inspect())
-		fmt.Fprint(out, "\n")
+		_, err = fmt.Fprint(out, v.LastPoppedStackElement().Inspect())
+		if err != nil {
+			fmt.Print(err)
+			return
+		}
+
+		_, err = fmt.Fprint(out, "\n")
+		if err != nil {
+			fmt.Print(err)
+			return
+		}
 	}
 }
