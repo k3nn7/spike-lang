@@ -120,6 +120,22 @@ func Test_Parser_ParseProgram(t *testing.T) {
 			code:        "\"hello world\"",
 			expectedAst: "\"hello world\"\n",
 		},
+		{
+			code:        "[1, 2 * 2, 3 + 3]",
+			expectedAst: "[1, (2 * 2), (3 + 3)]\n",
+		},
+		{
+			code:        "array[1 + 1]",
+			expectedAst: "(array[(1 + 1)])\n",
+		},
+		{
+			code:        "a * [1, 2, 3, 4][b * c] * d",
+			expectedAst: "((a * ([1, 2, 3, 4][(b * c)])) * d)\n",
+		},
+		{
+			code:        "add(a * b[2], b[1], 2 * [1, 2][1])",
+			expectedAst: "add((a * (b[2])), (b[1]), (2 * ([1, 2][1])));\n",
+		},
 	}
 
 	for _, testCase := range testCases {

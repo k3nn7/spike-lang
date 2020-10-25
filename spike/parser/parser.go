@@ -21,6 +21,7 @@ const (
 	product
 	prefix
 	call
+	index
 )
 
 var precedences = map[lexer.TokenType]int{
@@ -37,6 +38,7 @@ var precedences = map[lexer.TokenType]int{
 	lexer.And:             conjunction,
 	lexer.Or:              alternative,
 	lexer.LeftParenthesis: call,
+	lexer.LeftBracket:     index,
 }
 
 type Parser struct {
@@ -62,6 +64,7 @@ func New(lexerInstance *lexer.Lexer) *Parser {
 	parser.addPrefixParser(lexer.If, parser.parseIfExpression)
 	parser.addPrefixParser(lexer.Fn, parser.parseFunctionExpression)
 	parser.addPrefixParser(lexer.String, parser.parseString)
+	parser.addPrefixParser(lexer.LeftBracket, parser.parseArray)
 
 	parser.addInfixParser(lexer.Plus, parser.parseInfixExpression)
 	parser.addInfixParser(lexer.Asterisk, parser.parseInfixExpression)
@@ -76,6 +79,7 @@ func New(lexerInstance *lexer.Lexer) *Parser {
 	parser.addInfixParser(lexer.Or, parser.parseInfixExpression)
 	parser.addInfixParser(lexer.And, parser.parseInfixExpression)
 	parser.addInfixParser(lexer.LeftParenthesis, parser.parseCallExpression)
+	parser.addInfixParser(lexer.LeftBracket, parser.parseIndexExpression)
 
 	return parser
 }
@@ -429,4 +433,56 @@ func (parser *Parser) parseCallArguments() ([]ast.Expression, error) {
 	}
 
 	return arguments, nil
+}
+
+func (parser *Parser) parseArray() (ast.Expression, error) {
+	array := &ast.Array{
+		Token:    parser.currentToken,
+		Elements: make([]ast.Expression, 0),
+	}
+
+	for {
+		parser.advanceToken()
+		if parser.currentToken.Type == lexer.RightBracket {
+			break
+		}
+
+		element, err := parser.parseExpression(lowest)
+		if err != nil {
+			return nil, err
+		}
+		array.Elements = append(array.Elements, element)
+
+		parser.advanceToken()
+		if parser.currentToken.Type == lexer.RightBracket {
+			break
+		}
+
+		if parser.currentToken.Type != lexer.Comma {
+			return nil, errors.Errorf("expected comma, got %s", parser.currentToken.Type)
+		}
+	}
+
+	return array, nil
+}
+
+func (parser *Parser) parseIndexExpression(array ast.Expression) (ast.Expression, error) {
+	i := &ast.IndexExpression{
+		Token: parser.currentToken,
+		Array: array,
+	}
+
+	parser.advanceToken()
+	var err error
+	i.Index, err = parser.parseExpression(lowest)
+	if err != nil {
+		return nil, err
+	}
+
+	parser.advanceToken()
+	if parser.currentToken.Type != lexer.RightBracket {
+		return nil, errors.Errorf("expected closing bracket, got: %s", parser.currentToken.Type)
+	}
+
+	return i, nil
 }

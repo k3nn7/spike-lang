@@ -28,6 +28,8 @@ const (
 	LeftBrace        TokenType = "leftBrace"
 	RightBrace       TokenType = "rightBrace"
 	Comma            TokenType = "comma"
+	LeftBracket      TokenType = "leftBracket"
+	RightBracket     TokenType = "rightBracket"
 )
 
 var oneCharOperators = map[string]Token{
@@ -45,6 +47,8 @@ var oneCharOperators = map[string]Token{
 	"{": LeftBraceToken,
 	"}": RightBraceToken,
 	",": CommaToken,
+	"[": LeftBracketToken,
+	"]": RightBracketToken,
 }
 
 var twoCharOperators = map[string]Token{
@@ -117,4 +121,6 @@ var (
 	RightBraceToken       = Token{Type: RightBrace, Literal: "}"}
 	FnToken               = Token{Type: Fn, Literal: "fn"}
 	CommaToken            = Token{Type: Comma, Literal: ","}
+	LeftBracketToken      = Token{Type: LeftBracket, Literal: "["}
+	RightBracketToken     = Token{Type: RightBracket, Literal: "]"}
 )
