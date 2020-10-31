@@ -200,6 +200,22 @@ func Test_Eval_program(t *testing.T) {
 			input:    "len(\"hello world\");",
 			expected: &object.Integer{Value: 11},
 		},
+		{
+			input: "[1, 2 * 2, 3 + 3]",
+			expected: &object.Array{Elements: []object.Object{
+				&object.Integer{Value: 1},
+				&object.Integer{Value: 4},
+				&object.Integer{Value: 6},
+			}},
+		},
+		{
+			input:    "[1, 2, 3][1]",
+			expected: &object.Integer{Value: 2},
+		},
+		{
+			input:    "let i = 2; [1, 2, 3][i]",
+			expected: &object.Integer{Value: 3},
+		},
 	}
 
 	for _, testCase := range testCases {

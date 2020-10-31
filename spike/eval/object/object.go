@@ -10,6 +10,7 @@ const (
 	ReturnType          ObjectType = "return"
 	FunctionType        ObjectType = "function"
 	BuiltinFunctionType ObjectType = "builtinFunction"
+	ArrayType           ObjectType = "array"
 )
 
 type Ordering int8

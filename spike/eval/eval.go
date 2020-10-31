@@ -17,6 +17,21 @@ func Eval(node ast.Node, environment *object.Environment) (object.Object, error)
 		return &object.Integer{Value: node.Value}, nil
 	case *ast.Boolean:
 		return evalBoolean(node)
+	case *ast.Array:
+		array := &object.Array{
+			Elements: make([]object.Object, 0, len(node.Elements)),
+		}
+
+		for _, element := range node.Elements {
+			evaluatedElement, err := Eval(element, environment)
+			if err != nil {
+				return nil, err
+			}
+			array.Elements = append(array.Elements, evaluatedElement)
+		}
+
+		return array, nil
+
 	case *ast.PrefixExpression:
 		right, err := Eval(node.Right, environment)
 		if err != nil {
@@ -63,6 +78,27 @@ func Eval(node ast.Node, environment *object.Environment) (object.Object, error)
 		return applyFunction(function, arguments)
 	case *ast.String:
 		return &object.String{Value: node.Value}, nil
+	case *ast.IndexExpression:
+		evaluatedArray, err := Eval(node.Array, environment)
+		if err != nil {
+			return nil, err
+		}
+		evaluatedIndex, err := Eval(node.Index, environment)
+		if err != nil {
+			return nil, err
+		}
+
+		arrayObject, ok := evaluatedArray.(*object.Array)
+		if !ok {
+			return nil, errors.New("index can be used only on array")
+		}
+		integerObject, ok := evaluatedIndex.(*object.Integer)
+		if !ok {
+			return nil, errors.New("only integer can be used as index")
+		}
+
+		return arrayObject.Elements[integerObject.Value], nil
+
 	default:
 		return nil, errors.Errorf("Trying to evaluate unknown node: %T: %#v", node, node)
 	}
