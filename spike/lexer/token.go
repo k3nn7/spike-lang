@@ -30,6 +30,7 @@ const (
 	Comma            TokenType = "comma"
 	LeftBracket      TokenType = "leftBracket"
 	RightBracket     TokenType = "rightBracket"
+	Colon            TokenType = "colon"
 )
 
 var oneCharOperators = map[string]Token{
@@ -49,6 +50,7 @@ var oneCharOperators = map[string]Token{
 	",": CommaToken,
 	"[": LeftBracketToken,
 	"]": RightBracketToken,
+	":": ColonToken,
 }
 
 var twoCharOperators = map[string]Token{
@@ -123,4 +125,5 @@ var (
 	CommaToken            = Token{Type: Comma, Literal: ","}
 	LeftBracketToken      = Token{Type: LeftBracket, Literal: "["}
 	RightBracketToken     = Token{Type: RightBracket, Literal: "]"}
+	ColonToken            = Token{Type: Colon, Literal: ":"}
 )
