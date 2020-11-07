@@ -136,6 +136,18 @@ func Test_Parser_ParseProgram(t *testing.T) {
 			code:        "add(a * b[2], b[1], 2 * [1, 2][1])",
 			expectedAst: "add((a * (b[2])), (b[1]), (2 * ([1, 2][1])));\n",
 		},
+		{
+			code:        `{"key": "val", 2: true}`,
+			expectedAst: `{"key": "val", 2: true}` + "\n",
+		},
+		{
+			code:        `{"key" + "key2": "val", 2 + 3: !true}`,
+			expectedAst: `{("key" + "key2"): "val", (2 + 3): (!true)}` + "\n",
+		},
+		{
+			code:        "{}",
+			expectedAst: "{}\n",
+		},
 	}
 
 	for _, testCase := range testCases {

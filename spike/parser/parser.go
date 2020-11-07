@@ -65,6 +65,7 @@ func New(lexerInstance *lexer.Lexer) *Parser {
 	parser.addPrefixParser(lexer.Fn, parser.parseFunctionExpression)
 	parser.addPrefixParser(lexer.String, parser.parseString)
 	parser.addPrefixParser(lexer.LeftBracket, parser.parseArray)
+	parser.addPrefixParser(lexer.LeftBrace, parser.parseHash)
 
 	parser.addInfixParser(lexer.Plus, parser.parseInfixExpression)
 	parser.addInfixParser(lexer.Asterisk, parser.parseInfixExpression)
@@ -124,8 +125,6 @@ func (parser *Parser) parseStatement() (ast.Statement, error) {
 		return parser.parseLetStatement()
 	case lexer.Return:
 		return parser.parseReturnStatement()
-	case lexer.LeftBrace:
-		return parser.parseBlockStatement()
 	default:
 		return parser.parseExpressionStatement()
 	}
@@ -177,11 +176,15 @@ func (parser *Parser) parseIfExpression() (ast.Expression, error) {
 	}
 
 	parser.advanceToken()
-	statement, err := parser.parseStatement()
+	if parser.currentToken.Type != lexer.LeftBrace {
+		return ifExpression, errors.Errorf("expected left brace, got: %s", parser.currentToken.Type)
+	}
+
+	block, err := parser.parseBlockStatement()
 	if err != nil {
 		return ifExpression, err
 	}
-	ifExpression.Then = statement
+	ifExpression.Then = block
 
 	if parser.peekToken.Type != lexer.Else {
 		return ifExpression, nil
@@ -189,11 +192,15 @@ func (parser *Parser) parseIfExpression() (ast.Expression, error) {
 
 	parser.advanceToken()
 	parser.advanceToken()
-	statement, err = parser.parseStatement()
+	if parser.currentToken.Type != lexer.LeftBrace {
+		return ifExpression, errors.Errorf("expected left brace, got: %s", parser.currentToken.Type)
+	}
+
+	block, err = parser.parseBlockStatement()
 	if err != nil {
 		return ifExpression, err
 	}
-	ifExpression.Else = statement
+	ifExpression.Else = block
 
 	return ifExpression, nil
 }
@@ -233,12 +240,16 @@ func (parser *Parser) parseFunctionExpression() (ast.Expression, error) {
 	}
 
 	parser.advanceToken()
-	statement, err := parser.parseStatement()
+	if parser.currentToken.Type != lexer.LeftBrace {
+		return functionExpression, errors.Errorf("expected left brace, got: %s", parser.currentToken.Type)
+	}
+
+	block, err := parser.parseBlockStatement()
 	if err != nil {
 		return functionExpression, err
 	}
 
-	functionExpression.Body = statement
+	functionExpression.Body = block
 
 	return functionExpression, nil
 }
@@ -433,6 +444,49 @@ func (parser *Parser) parseCallArguments() ([]ast.Expression, error) {
 	}
 
 	return arguments, nil
+}
+
+func (parser *Parser) parseHash() (ast.Expression, error) {
+	hash := &ast.Hash{
+		Token: parser.currentToken,
+		Pairs: make(map[ast.Expression]ast.Expression),
+	}
+
+	for {
+		parser.advanceToken()
+		if parser.currentToken.Type == lexer.RightBrace {
+			break
+		}
+
+		key, err := parser.parseExpression(lowest)
+		if err != nil {
+			return nil, err
+		}
+
+		parser.advanceToken()
+		if parser.currentToken.Type != lexer.Colon {
+			return nil, errors.Errorf("expected colon, got: %s", parser.currentToken.Literal)
+		}
+
+		parser.advanceToken()
+		val, err := parser.parseExpression(lowest)
+		if err != nil {
+			return nil, err
+		}
+
+		hash.Pairs[key] = val
+
+		parser.advanceToken()
+		if parser.currentToken.Type == lexer.RightBrace {
+			break
+		}
+
+		if parser.currentToken.Type != lexer.Comma {
+			return nil, errors.Errorf("expected comma, got %s", parser.currentToken.Type)
+		}
+	}
+
+	return hash, nil
 }
 
 func (parser *Parser) parseArray() (ast.Expression, error) {
