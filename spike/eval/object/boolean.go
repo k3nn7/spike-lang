@@ -22,8 +22,16 @@ func (boolean *Boolean) Inspect() string {
 func (boolean *Boolean) Equal(other Object) bool {
 	otherBoolean, ok := other.(*Boolean)
 	if !ok {
-		return false, NotComparableError
+		return false
 	}
 
-	return boolean.Value == otherBoolean.Value, nil
+	return boolean.Value == otherBoolean.Value
+}
+
+func (boolean *Boolean) GetHashKey() HashKey {
+	if boolean.Value {
+		return HashKey{Type: BooleanType, Value: 1}
+	}
+
+	return HashKey{Type: BooleanType, Value: 0}
 }

@@ -11,6 +11,7 @@ const (
 	FunctionType        ObjectType = "function"
 	BuiltinFunctionType ObjectType = "builtinFunction"
 	ArrayType           ObjectType = "array"
+	HashType            ObjectType = "hash"
 )
 
 type Ordering int8
@@ -29,4 +30,13 @@ type Object interface {
 
 type Comparable interface {
 	Compare(other Comparable) (Ordering, error)
+}
+
+type Hashable interface {
+	GetHashKey() HashKey
+}
+
+type HashKey struct {
+	Type  ObjectType
+	Value uint64
 }

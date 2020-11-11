@@ -34,3 +34,10 @@ func (integer *Integer) Compare(other Comparable) (Ordering, error) {
 
 	return EQ, nil
 }
+
+func (integer *Integer) GetHashKey() HashKey {
+	return HashKey{
+		Type:  IntegerType,
+		Value: uint64(integer.Value),
+	}
+}

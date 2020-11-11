@@ -1,6 +1,9 @@
 package object
 
-import "fmt"
+import (
+	"fmt"
+	"hash/fnv"
+)
 
 type String struct {
 	Value string
@@ -23,5 +26,12 @@ func (str *String) Equal(other Object) bool {
 	return str.Value == otherString.Value
 }
 
-	return str.Value == otherString.Value, nil
+func (str *String) GetHashKey() HashKey {
+	h := fnv.New64a()
+	h.Write([]byte(str.Value))
+
+	return HashKey{
+		Type:  StringType,
+		Value: h.Sum64(),
+	}
 }
