@@ -32,6 +32,34 @@ func Eval(node ast.Node, environment *object.Environment) (object.Object, error)
 
 		return array, nil
 
+	case *ast.Hash:
+		hash := &object.Hash{
+			Pairs: make(map[object.HashKey]object.HashPair, len(node.Pairs)),
+		}
+
+		for key, value := range node.Pairs {
+			evaluatedKey, err := Eval(key, environment)
+			if err != nil {
+				return nil, err
+			}
+			evalutedValue, err := Eval(value, environment)
+			if err != nil {
+				return nil, err
+			}
+
+			hashable, isHashable := evaluatedKey.(object.Hashable)
+			if !isHashable {
+				return nil, errors.Errorf("%s does not implement Hashable", evaluatedKey.Type())
+			}
+
+			hash.Pairs[hashable.GetHashKey()] = object.HashPair{
+				Key:   evaluatedKey,
+				Value: evalutedValue,
+			}
+		}
+
+		return hash, nil
+
 	case *ast.PrefixExpression:
 		right, err := Eval(node.Right, environment)
 		if err != nil {

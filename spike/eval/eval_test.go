@@ -220,6 +220,18 @@ func Test_Eval_program(t *testing.T) {
 			input:    "len([1, 2, 3])",
 			expected: &object.Integer{Value: 3},
 		},
+		{
+			input: `{5: "val"}`,
+			expected: &object.Hash{Pairs: map[object.HashKey]object.HashPair{
+				object.HashKey{
+					Type:  object.IntegerType,
+					Value: 5,
+				}: {
+					Key:   &object.Integer{Value: 5},
+					Value: &object.String{Value: "val"},
+				},
+			}},
+		},
 	}
 
 	for _, testCase := range testCases {
