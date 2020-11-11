@@ -33,38 +33,19 @@ func Test_Boolean_Equal(t *testing.T) {
 			right:          &False,
 			expectedResult: true,
 		},
+		{
+			left:           &Integer{Value: 10},
+			right:          &False,
+			expectedResult: false,
+		},
 	}
 
 	for _, testCase := range testCases {
 		testCaseName := fmt.Sprintf("%v == %v => %t", testCase.left, testCase.right, testCase.expectedResult)
 		t.Run(testCaseName, func(t *testing.T) {
-			result, err := testCase.left.Equal(testCase.right)
+			result := testCase.left.Equal(testCase.right)
 
-			assert.NoError(t, err)
 			assert.Equal(t, testCase.expectedResult, result)
-		})
-	}
-}
-
-func Test_Boolean_Equal_errors(t *testing.T) {
-	testCases := []struct {
-		left          Object
-		right         Object
-		expectedError error
-	}{
-		{
-			left:          &True,
-			right:         &Integer{Value: 10},
-			expectedError: NotComparableError,
-		},
-	}
-
-	for _, testCase := range testCases {
-		testCaseName := fmt.Sprintf("%#v == %#v => %s", testCase.left, testCase.right, testCase.expectedError)
-		t.Run(testCaseName, func(t *testing.T) {
-			_, err := testCase.left.Equal(testCase.right)
-
-			assert.Equal(t, testCase.expectedError, err)
 		})
 	}
 }

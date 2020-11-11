@@ -51,7 +51,7 @@ func Eval(node ast.Node, environment *object.Environment) (object.Object, error)
 		return evalInfixExpression(left, right, node.Operator)
 	case *ast.IfExpression:
 		condition, _ := Eval(node.Condition, environment)
-		if equal, _ := condition.Equal(&object.True); equal {
+		if condition.Equal(&object.True) {
 			return Eval(node.Then, environment)
 		} else {
 			return Eval(node.Else, environment)
@@ -227,11 +227,11 @@ func evalInfixExpression(left, right object.Object, operator string) (object.Obj
 	case "/":
 		return evalAsteriskSlashOperator(left, right)
 	case "==":
-		equal, err := left.Equal(right)
-		return nativeBoolToBoolean(equal), err
+		equal := left.Equal(right)
+		return nativeBoolToBoolean(equal), nil
 	case "!=":
-		equal, err := left.Equal(right)
-		return nativeBoolToBoolean(!equal), err
+		equal := left.Equal(right)
+		return nativeBoolToBoolean(!equal), nil
 	case "<":
 		leftComparable := left.(object.Comparable)
 		rightComparable := right.(object.Comparable)

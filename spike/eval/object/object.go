@@ -24,7 +24,7 @@ const (
 type Object interface {
 	Type() ObjectType
 	Inspect() string
-	Equal(other Object) (bool, error)
+	Equal(other Object) bool
 }
 
 type Comparable interface {

@@ -21,6 +21,6 @@ func (function *Function) Inspect() string {
 	return out.String()
 }
 
-func (function *Function) Equal(other Object) (bool, error) {
-	return other == function, nil
+func (function *Function) Equal(other Object) bool {
+	return other == function
 }

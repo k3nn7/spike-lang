@@ -25,25 +25,21 @@ func (array *Array) Inspect() string {
 	return out.String()
 }
 
-func (array *Array) Equal(other Object) (bool, error) {
+func (array *Array) Equal(other Object) bool {
 	otherArray, ok := other.(*Array)
 	if !ok {
-		return false, nil
+		return false
 	}
 
 	if len(array.Elements) != len(otherArray.Elements) {
-		return false, nil
+		return false
 	}
 
 	for i := range array.Elements {
-		equal, err := array.Elements[i].Equal(otherArray.Elements[i])
-		if err != nil {
-			return false, err
-		}
-		if !equal {
-			return false, nil
+		if !array.Elements[i].Equal(otherArray.Elements[i]) {
+			return false
 		}
 	}
 
-	return true, nil
+	return true
 }

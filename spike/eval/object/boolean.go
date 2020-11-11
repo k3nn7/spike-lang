@@ -19,7 +19,7 @@ func (boolean *Boolean) Inspect() string {
 	return fmt.Sprintf("%t", boolean.Value)
 }
 
-func (boolean *Boolean) Equal(other Object) (bool, error) {
+func (boolean *Boolean) Equal(other Object) bool {
 	otherBoolean, ok := other.(*Boolean)
 	if !ok {
 		return false, NotComparableError
