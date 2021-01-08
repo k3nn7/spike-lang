@@ -116,17 +116,26 @@ func Eval(node ast.Node, environment *object.Environment) (object.Object, error)
 			return nil, err
 		}
 
-		arrayObject, ok := evaluatedArray.(*object.Array)
-		if !ok {
+		switch evaluatedArray.(type) {
+		case *object.Array:
+			arrayObject := evaluatedArray.(*object.Array)
+			integerObject, ok := evaluatedIndex.(*object.Integer)
+			if !ok {
+				return nil, errors.New("only integer can be used as index")
+			}
+
+			return arrayObject.Elements[integerObject.Value], nil
+		case *object.Hash:
+			hashObject := evaluatedArray.(*object.Hash)
+			hashable, ok := evaluatedIndex.(object.Hashable)
+			if !ok {
+				return nil, errors.New("hash key must implement Hashable interface")
+			}
+
+			return hashObject.Get(hashable)
+		default:
 			return nil, errors.New("index can be used only on array")
 		}
-		integerObject, ok := evaluatedIndex.(*object.Integer)
-		if !ok {
-			return nil, errors.New("only integer can be used as index")
-		}
-
-		return arrayObject.Elements[integerObject.Value], nil
-
 	default:
 		return nil, errors.Errorf("Trying to evaluate unknown node: %T: %#v", node, node)
 	}

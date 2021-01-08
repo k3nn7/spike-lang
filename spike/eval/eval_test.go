@@ -232,6 +232,10 @@ func Test_Eval_program(t *testing.T) {
 				},
 			}},
 		},
+		{
+			input:    `{"key1": "val1", "key2": "val2"}["key2"]`,
+			expected: &object.String{Value: "val2"},
+		},
 	}
 
 	for _, testCase := range testCases {

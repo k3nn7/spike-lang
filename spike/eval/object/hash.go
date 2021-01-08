@@ -1,6 +1,7 @@
 package object
 
 import (
+	"errors"
 	"fmt"
 	"strings"
 )
@@ -53,4 +54,14 @@ func (hash *Hash) Equal(other Object) bool {
 	}
 
 	return true
+}
+
+func (hash *Hash) Get(key1 Hashable) (Object, error) {
+	pair, ok := hash.Pairs[key1.GetHashKey()]
+
+	if !ok {
+		return nil, errors.New("pair not found for given key")
+	}
+
+	return pair.Value, nil
 }
