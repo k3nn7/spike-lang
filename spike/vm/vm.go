@@ -155,6 +155,29 @@ func (vm *VM) Run() error {
 			if err != nil {
 				return err
 			}
+
+		case code.OpHash:
+			elementsCount := int(binary.BigEndian.Uint16(vm.instructions[ip+1:]))
+			ip += 2
+
+			pairs := make(map[object.HashKey]object.HashPair)
+
+			for i := 0; i < elementsCount; i += 2 {
+				key := vm.stack[vm.sp-elementsCount+i].(object.Hashable)
+				value := vm.stack[vm.sp-elementsCount+i+1]
+
+				pairs[key.GetHashKey()] = object.HashPair{
+					Key:   key.(object.Object),
+					Value: value,
+				}
+			}
+
+			hash := &object.Hash{Pairs: pairs}
+			err := vm.push(hash)
+			if err != nil {
+				return err
+			}
+
 		}
 	}
 	return nil

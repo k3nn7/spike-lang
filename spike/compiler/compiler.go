@@ -2,6 +2,7 @@ package compiler
 
 import (
 	"fmt"
+	"sort"
 	"spike-interpreter-go/spike/code"
 	"spike-interpreter-go/spike/eval/object"
 	"spike-interpreter-go/spike/parser/ast"
@@ -210,6 +211,29 @@ func (compiler *Compiler) Compile(node ast.Node) error {
 		}
 
 		compiler.emit(code.OpArray, len(node.Elements))
+
+	case *ast.Hash:
+		keys := make([]ast.Expression, 0)
+		for key := range node.Pairs {
+			keys = append(keys, key)
+		}
+		sort.Slice(keys, func(i, j int) bool {
+			return keys[i].String() < keys[j].String()
+		})
+
+		for _, key := range keys {
+			err := compiler.Compile(key)
+			if err != nil {
+				return err
+			}
+
+			err = compiler.Compile(node.Pairs[key])
+			if err != nil {
+				return err
+			}
+		}
+
+		compiler.emit(code.OpHash, len(node.Pairs)*2)
 	}
 
 	return nil

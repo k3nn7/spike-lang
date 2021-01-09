@@ -56,6 +56,7 @@ func Test_Instructions_String(t *testing.T) {
 		Make(OpSetGlobal, 256).
 		Make(OpGetGlobal, 256).
 		Make(OpArray, 256).
+		Make(OpHash, 256).
 		Build()
 
 	expectedOutput := `0000 OpConstant 2
@@ -73,6 +74,7 @@ func Test_Instructions_String(t *testing.T) {
 0020 OpSetGlobal 256
 0023 OpGetGlobal 256
 0026 OpArray 256
+0029 OpHash 256
 `
 
 	assert.Equal(t, expectedOutput, instructions.String())

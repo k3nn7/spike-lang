@@ -131,6 +131,32 @@ func Test_Run(t *testing.T) {
 				&object.Integer{Value: 5},
 			}},
 		},
+		{
+			code:             `{}`,
+			expectedStackTop: &object.Hash{Pairs: map[object.HashKey]object.HashPair{}},
+		},
+		{
+			code: `{1:2, 2:3}`,
+			expectedStackTop: &object.Hash{Pairs: map[object.HashKey]object.HashPair{
+				(&object.Integer{Value: 1}).GetHashKey(): {
+					Key:   &object.Integer{Value: 1},
+					Value: &object.Integer{Value: 2},
+				},
+				(&object.Integer{Value: 2}).GetHashKey(): {
+					Key:   &object.Integer{Value: 2},
+					Value: &object.Integer{Value: 3},
+				},
+			}},
+		},
+		{
+			code: `{1+2:2-3}`,
+			expectedStackTop: &object.Hash{Pairs: map[object.HashKey]object.HashPair{
+				(&object.Integer{Value: 3}).GetHashKey(): {
+					Key:   &object.Integer{Value: 3},
+					Value: &object.Integer{Value: -1},
+				},
+			}},
+		},
 	}
 
 	for _, testCase := range testCases {

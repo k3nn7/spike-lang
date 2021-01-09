@@ -304,6 +304,50 @@ func Test_Compiler(t *testing.T) {
 				Make(code.OpPop).
 				Build(),
 		},
+		{
+			code:              `{}`,
+			expectedConstants: []object.Object{},
+			expectedInstructions: code.NewBuilder().
+				Make(code.OpHash, 0).
+				Make(code.OpPop).
+				Build(),
+		},
+		{
+			code: `{1: 2, 3: 4}`,
+			expectedConstants: []object.Object{
+				&object.Integer{Value: 1},
+				&object.Integer{Value: 2},
+				&object.Integer{Value: 3},
+				&object.Integer{Value: 4},
+			},
+			expectedInstructions: code.NewBuilder().
+				Make(code.OpConstant, 0).
+				Make(code.OpConstant, 1).
+				Make(code.OpConstant, 2).
+				Make(code.OpConstant, 3).
+				Make(code.OpHash, 4).
+				Make(code.OpPop).
+				Build(),
+		},
+		{
+			code: `{1 + 2: 2 - 3}`,
+			expectedConstants: []object.Object{
+				&object.Integer{Value: 1},
+				&object.Integer{Value: 2},
+				&object.Integer{Value: 2},
+				&object.Integer{Value: 3},
+			},
+			expectedInstructions: code.NewBuilder().
+				Make(code.OpConstant, 0).
+				Make(code.OpConstant, 1).
+				Make(code.OpAdd).
+				Make(code.OpConstant, 2).
+				Make(code.OpConstant, 3).
+				Make(code.OpSub).
+				Make(code.OpHash, 2).
+				Make(code.OpPop).
+				Build(),
+		},
 	}
 
 	for _, testCase := range testCases {
