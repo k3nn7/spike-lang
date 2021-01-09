@@ -74,5 +74,5 @@ u.changeName("newName")
 - [x] Parsing if-else expressions
 - [x] Parsing function literals
 - [x] Parsing call expressions
-- [ ] Support for arrays
-- [ ] Support for hash maps 
+- [x] Support for arrays
+- [x] Support for hash maps 
