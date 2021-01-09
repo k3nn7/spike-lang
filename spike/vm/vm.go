@@ -138,6 +138,23 @@ func (vm *VM) Run() error {
 			if err != nil {
 				return err
 			}
+
+		case code.OpArray:
+			elementsCount := int(binary.BigEndian.Uint16(vm.instructions[ip+1:]))
+			ip += 2
+
+			elements := make([]object.Object, elementsCount)
+			for i := 0; i < elementsCount; i++ {
+				elements[i] = vm.stack[vm.sp-elementsCount+i]
+			}
+
+			vm.sp -= elementsCount
+
+			array := &object.Array{Elements: elements}
+			err := vm.push(array)
+			if err != nil {
+				return err
+			}
 		}
 	}
 	return nil

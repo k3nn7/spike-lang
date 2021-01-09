@@ -112,6 +112,25 @@ func Test_Run(t *testing.T) {
 			code:             `"spike " + "language"`,
 			expectedStackTop: &object.String{Value: "spike language"},
 		},
+		{
+			code:             `[]`,
+			expectedStackTop: &object.Array{Elements: []object.Object{}},
+		},
+		{
+			code: `[1, 2, 3]`,
+			expectedStackTop: &object.Array{Elements: []object.Object{
+				&object.Integer{Value: 1},
+				&object.Integer{Value: 2},
+				&object.Integer{Value: 3},
+			}},
+		},
+		{
+			code: `[1 + 2, 2 + 3]`,
+			expectedStackTop: &object.Array{Elements: []object.Object{
+				&object.Integer{Value: 3},
+				&object.Integer{Value: 5},
+			}},
+		},
 	}
 
 	for _, testCase := range testCases {

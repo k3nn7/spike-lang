@@ -200,6 +200,16 @@ func (compiler *Compiler) Compile(node ast.Node) error {
 		}
 
 		compiler.emit(code.OpGetGlobal, symbol.Index)
+
+	case *ast.Array:
+		for _, element := range node.Elements {
+			err := compiler.Compile(element)
+			if err != nil {
+				return err
+			}
+		}
+
+		compiler.emit(code.OpArray, len(node.Elements))
 	}
 
 	return nil
