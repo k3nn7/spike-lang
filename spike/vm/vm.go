@@ -178,6 +178,47 @@ func (vm *VM) Run() error {
 				return err
 			}
 
+		case code.OpIndex:
+			index := vm.pop()
+			array := vm.pop()
+
+			switch array := array.(type) {
+			case *object.Array:
+				index, ok := index.(*object.Integer)
+				if !ok {
+					return errors.Errorf("Array index must be an integer, got: %s", index.Type())
+				}
+
+				if index.Value < 0 || index.Value >= int64(len(array.Elements)) {
+					err := vm.push(Null)
+					if err != nil {
+						return err
+					}
+				} else {
+					err := vm.push(array.Elements[index.Value])
+					if err != nil {
+						return err
+					}
+				}
+			case *object.Hash:
+				hashKey, ok := index.(object.Hashable)
+				if !ok {
+					return errors.Errorf("Object of type %s can not be used as a hash key", index.Type())
+				}
+
+				value, err := array.Get(hashKey)
+				if err != nil {
+					err = vm.push(Null)
+					if err != nil {
+						return err
+					}
+				} else {
+					err = vm.push(value)
+					if err != nil {
+						return err
+					}
+				}
+			}
 		}
 	}
 	return nil

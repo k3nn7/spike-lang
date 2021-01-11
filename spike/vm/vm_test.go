@@ -157,6 +157,26 @@ func Test_Run(t *testing.T) {
 				},
 			}},
 		},
+		{
+			code:             `[1, 2, 3][1]`,
+			expectedStackTop: &object.Integer{Value: 2},
+		},
+		{
+			code:             `[1, 2, 3][1 + 1]`,
+			expectedStackTop: &object.Integer{Value: 3},
+		},
+		{
+			code:             `[][1]`,
+			expectedStackTop: Null,
+		},
+		{
+			code:             `{"name": "kenny", "age": 31}["age"]`,
+			expectedStackTop: &object.Integer{Value: 31},
+		},
+		{
+			code:             `{"name": "kenny", "age": 31}["surname"]`,
+			expectedStackTop: Null,
+		},
 	}
 
 	for _, testCase := range testCases {

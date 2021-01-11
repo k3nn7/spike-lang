@@ -32,6 +32,7 @@ const (
 	OpGetGlobal
 	OpArray
 	OpHash
+	OpIndex
 )
 
 type Definition struct {
@@ -119,6 +120,10 @@ var definitions = map[Opcode]*Definition{
 	OpHash: {
 		Name:          "OpHash",
 		OperandWidths: []int{2},
+	},
+	OpIndex: {
+		Name:          "OpIndex",
+		OperandWidths: []int{},
 	},
 }
 

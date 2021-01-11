@@ -234,6 +234,19 @@ func (compiler *Compiler) Compile(node ast.Node) error {
 		}
 
 		compiler.emit(code.OpHash, len(node.Pairs)*2)
+
+	case *ast.IndexExpression:
+		err := compiler.Compile(node.Array)
+		if err != nil {
+			return err
+		}
+
+		err = compiler.Compile(node.Index)
+		if err != nil {
+			return err
+		}
+
+		compiler.emit(code.OpIndex)
 	}
 
 	return nil
