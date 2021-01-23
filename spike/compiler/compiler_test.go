@@ -404,6 +404,55 @@ func Test_Compiler(t *testing.T) {
 				Make(code.OpPop).
 				Build(),
 		},
+		{
+			code: `fn () { 5 + 10 }`,
+			expectedConstants: []object.Object{
+				&object.Integer{Value: 5},
+				&object.Integer{Value: 10},
+				&object.CompiledFunction{Instructions: code.NewBuilder().
+					Make(code.OpConstant, 0).
+					Make(code.OpConstant, 1).
+					Make(code.OpAdd).
+					Make(code.OpReturnValue).
+					Build(),
+				},
+			},
+			expectedInstructions: code.NewBuilder().
+				Make(code.OpConstant, 2).
+				Make(code.OpPop).
+				Build(),
+		},
+		{
+			code: `fn () { 1; 2 }`,
+			expectedConstants: []object.Object{
+				&object.Integer{Value: 1},
+				&object.Integer{Value: 2},
+				&object.CompiledFunction{Instructions: code.NewBuilder().
+					Make(code.OpConstant, 0).
+					Make(code.OpPop).
+					Make(code.OpConstant, 1).
+					Make(code.OpReturnValue).
+					Build(),
+				},
+			},
+			expectedInstructions: code.NewBuilder().
+				Make(code.OpConstant, 2).
+				Make(code.OpPop).
+				Build(),
+		},
+		{
+			code: `fn () { }`,
+			expectedConstants: []object.Object{
+				&object.CompiledFunction{Instructions: code.NewBuilder().
+					Make(code.OpReturn).
+					Build(),
+				},
+			},
+			expectedInstructions: code.NewBuilder().
+				Make(code.OpConstant, 0).
+				Make(code.OpPop).
+				Build(),
+		},
 	}
 
 	for _, testCase := range testCases {
