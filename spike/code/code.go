@@ -33,6 +33,9 @@ const (
 	OpArray
 	OpHash
 	OpIndex
+	OpCall
+	OpReturnValue
+	OpReturn
 )
 
 type Definition struct {
@@ -125,6 +128,18 @@ var definitions = map[Opcode]*Definition{
 		Name:          "OpIndex",
 		OperandWidths: []int{},
 	},
+	OpCall: {
+		Name:          "OpCall",
+		OperandWidths: []int{},
+	},
+	OpReturnValue: {
+		Name:          "OpReturnValue",
+		OperandWidths: []int{},
+	},
+	OpReturn: {
+		Name:          "OpReturn",
+		OperandWidths: []int{},
+	},
 }
 
 type Instructions []byte
@@ -136,12 +151,18 @@ func (instructions Instructions) String() string {
 	for i < len(instructions) {
 		definition, err := Lookup(Opcode(instructions[i]))
 		if err != nil {
-			fmt.Fprintf(&result, "ERROR: %s\n", err)
+			_, err = fmt.Fprintf(&result, "ERROR: %s\n", err)
+			if err != nil {
+				panic(err)
+			}
 			continue
 		}
 
 		operands, operandBytes := ReadOperands(definition, instructions[i+1:])
-		fmt.Fprintf(&result, "%04d %s\n", i, formatInstruction(definition, operands))
+		_, err = fmt.Fprintf(&result, "%04d %s\n", i, formatInstruction(definition, operands))
+		if err != nil {
+			panic(err)
+		}
 
 		i += 1 + operandBytes
 	}
