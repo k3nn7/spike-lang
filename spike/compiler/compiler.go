@@ -290,6 +290,14 @@ func (compiler *Compiler) Compile(node ast.Node) error {
 		}
 
 		compiler.emit(code.OpReturnValue)
+
+	case *ast.CallExpression:
+		err := compiler.Compile(node.Function)
+		if err != nil {
+			return err
+		}
+
+		compiler.emit(code.OpCall)
 	}
 
 	return nil

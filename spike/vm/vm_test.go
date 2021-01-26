@@ -177,6 +177,22 @@ func Test_Run(t *testing.T) {
 			code:             `{"name": "kenny", "age": 31}["surname"]`,
 			expectedStackTop: Null,
 		},
+		{
+			code:             `let f = fn () { 5 + 10 }; f();`,
+			expectedStackTop: &object.Integer{Value: 15},
+		},
+		{
+			code:             `let f = fn () { return 5 + 10 }; f();`,
+			expectedStackTop: &object.Integer{Value: 15},
+		},
+		{
+			code:             `let f = fn () { }; f();`,
+			expectedStackTop: Null,
+		},
+		{
+			code:             `let f = fn() { 1 }; let g = fn() { f }; g()()`,
+			expectedStackTop: &object.Integer{Value: 1},
+		},
 	}
 
 	for _, testCase := range testCases {

@@ -453,6 +453,40 @@ func Test_Compiler(t *testing.T) {
 				Make(code.OpPop).
 				Build(),
 		},
+		{
+			code: `fn() { 24 } ()`,
+			expectedConstants: []object.Object{
+				&object.Integer{Value: 24},
+				&object.CompiledFunction{Instructions: code.NewBuilder().
+					Make(code.OpConstant, 0).
+					Make(code.OpReturnValue).
+					Build(),
+				},
+			},
+			expectedInstructions: code.NewBuilder().
+				Make(code.OpConstant, 1).
+				Make(code.OpCall).
+				Make(code.OpPop).
+				Build(),
+		},
+		{
+			code: `let f = fn() { 24 }; f()`,
+			expectedConstants: []object.Object{
+				&object.Integer{Value: 24},
+				&object.CompiledFunction{Instructions: code.NewBuilder().
+					Make(code.OpConstant, 0).
+					Make(code.OpReturnValue).
+					Build(),
+				},
+			},
+			expectedInstructions: code.NewBuilder().
+				Make(code.OpConstant, 1).
+				Make(code.OpSetGlobal, 0).
+				Make(code.OpGetGlobal, 0).
+				Make(code.OpCall).
+				Make(code.OpPop).
+				Build(),
+		},
 	}
 
 	for _, testCase := range testCases {
