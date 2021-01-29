@@ -36,6 +36,8 @@ const (
 	OpCall
 	OpReturnValue
 	OpReturn
+	OpSetLocal
+	OpGetLocal
 )
 
 type Definition struct {
@@ -110,19 +112,19 @@ var definitions = map[Opcode]*Definition{
 	},
 	OpSetGlobal: {
 		Name:          "OpSetGlobal",
-		OperandWidths: []int{2},
+		OperandWidths: []int{2 * Byte},
 	},
 	OpGetGlobal: {
 		Name:          "OpGetGlobal",
-		OperandWidths: []int{2},
+		OperandWidths: []int{2 * Byte},
 	},
 	OpArray: {
 		Name:          "OpArray",
-		OperandWidths: []int{2},
+		OperandWidths: []int{2 * Byte},
 	},
 	OpHash: {
 		Name:          "OpHash",
-		OperandWidths: []int{2},
+		OperandWidths: []int{2 * Byte},
 	},
 	OpIndex: {
 		Name:          "OpIndex",
@@ -130,7 +132,7 @@ var definitions = map[Opcode]*Definition{
 	},
 	OpCall: {
 		Name:          "OpCall",
-		OperandWidths: []int{},
+		OperandWidths: []int{1 * Byte},
 	},
 	OpReturnValue: {
 		Name:          "OpReturnValue",
@@ -139,6 +141,14 @@ var definitions = map[Opcode]*Definition{
 	OpReturn: {
 		Name:          "OpReturn",
 		OperandWidths: []int{},
+	},
+	OpSetLocal: {
+		Name:          "OpSetLocal",
+		OperandWidths: []int{1 * Byte},
+	},
+	OpGetLocal: {
+		Name:          "OpGetLocal",
+		OperandWidths: []int{1 * Byte},
 	},
 }
 
@@ -217,6 +227,8 @@ func Make(opcode Opcode, operands ...int) ([]byte, error) {
 	for i, operand := range operands {
 		operandWidth := definition.OperandWidths[i]
 		switch operandWidth {
+		case 1 * Byte:
+			instruction[offset] = byte(operand)
 		case 2 * Byte:
 			binary.BigEndian.PutUint16(instruction[offset:], uint16(operand))
 		}
@@ -232,7 +244,9 @@ func ReadOperands(definition *Definition, instructions Instructions) ([]int, int
 
 	for i, width := range definition.OperandWidths {
 		switch width {
-		case 2:
+		case 1 * Byte:
+			operands[i] = int(instructions[offset])
+		case 2 * Byte:
 			operands[i] = int(binary.BigEndian.Uint16(instructions[offset:]))
 		}
 

@@ -193,31 +193,90 @@ func Test_Run(t *testing.T) {
 			code:             `let f = fn() { 1 }; let g = fn() { f }; g()()`,
 			expectedStackTop: &object.Integer{Value: 1},
 		},
+		{
+			code:             `let one = fn() { let one = 1; one }; one()`,
+			expectedStackTop: &object.Integer{Value: 1},
+		},
+		{
+			code:             `let a = 50; let dec = fn() { let b = 2; return a - b }; dec()`,
+			expectedStackTop: &object.Integer{Value: 48},
+		},
+		{
+			code:             `let a = fn() { let aa = 5; aa }; let b = fn () { let bb = 10; bb }; a() + b()`,
+			expectedStackTop: &object.Integer{Value: 15},
+		},
+		{
+			code:             `let add = fn() { let a = 10; a }; let a = 5; a + add()`,
+			expectedStackTop: &object.Integer{Value: 15},
+		},
+		{
+			code:             `fn() { let a = 7; a } () + 5`,
+			expectedStackTop: &object.Integer{Value: 12},
+		},
+		{
+			code:             `let a = fn() { let i = 1; let j = 2; i + j }; a()`,
+			expectedStackTop: &object.Integer{Value: 3},
+		},
+		{
+			code: `
+			let g = 10;
+			let a = fn() { let i = 1; i + g };
+			let b = fn() { let i = 2; i + g };
+			a() + b();`,
+			expectedStackTop: &object.Integer{Value: 23},
+		},
+		{
+			code: `
+			let g = 10;
+			let a = fn() { let i = 1; i + g };
+			let b = fn() { let i = 2; a() + i };
+			g + b();`,
+			expectedStackTop: &object.Integer{Value: 23},
+		},
+		{
+			code: `
+			let f = fn(a) { a };
+			f(555);`,
+			expectedStackTop: &object.Integer{Value: 555},
+		},
+		{
+			code: `
+			let f = fn(a, b) { a + b };
+			f(555, 222);`,
+			expectedStackTop: &object.Integer{Value: 777},
+		},
 	}
 
 	for _, testCase := range testCases {
 		t.Run(testCase.code, func(t *testing.T) {
-			stackTop := runInVM(t, testCase.code)
+			stackTop, err := runInVM(testCase.code)
+			assert.NoError(t, err)
 			assert.Equal(t, testCase.expectedStackTop, stackTop)
 		})
 	}
 }
 
-func runInVM(t *testing.T, input string) object.Object {
+func runInVM(input string) (object.Object, error) {
 	l := lexer.New(strings.NewReader(input))
 	p := parser.New(l)
 	c := compiler.New()
 
 	program, err := p.ParseProgram()
-	assert.NoError(t, err)
+	if err != nil {
+		return nil, err
+	}
 
 	err = c.Compile(program)
-	assert.NoError(t, err)
+	if err != nil {
+		return nil, err
+	}
 
 	vm := New(c.Bytecode())
 
 	err = vm.Run()
-	assert.NoError(t, err)
+	if err != nil {
+		return nil, err
+	}
 
-	return vm.LastPoppedStackElement()
+	return vm.LastPoppedStackElement(), nil
 }

@@ -54,3 +54,45 @@ func Test_SymbolTable_ResolveGlobal(t *testing.T) {
 	_, ok = symbolTable.Resolve("c")
 	assert.False(t, ok)
 }
+
+func Test_SymbolTable_ResolveLocal(t *testing.T) {
+	global := NewSymbolTable()
+	global.Define("a")
+	global.Define("b")
+
+	local := NewEnclosedSymbolTable(global)
+	local.Define("c")
+	local.Define("d")
+
+	symbol, ok := local.Resolve("a")
+	assert.True(t, ok)
+	assert.Equal(t, Symbol{
+		Name:        "a",
+		SymbolScope: GlobalScope,
+		Index:       0,
+	}, symbol)
+
+	symbol, ok = local.Resolve("b")
+	assert.True(t, ok)
+	assert.Equal(t, Symbol{
+		Name:        "b",
+		SymbolScope: GlobalScope,
+		Index:       1,
+	}, symbol)
+
+	symbol, ok = local.Resolve("c")
+	assert.True(t, ok)
+	assert.Equal(t, Symbol{
+		Name:        "c",
+		SymbolScope: LocalScope,
+		Index:       0,
+	}, symbol)
+
+	symbol, ok = local.Resolve("d")
+	assert.True(t, ok)
+	assert.Equal(t, Symbol{
+		Name:        "d",
+		SymbolScope: LocalScope,
+		Index:       1,
+	}, symbol)
+}

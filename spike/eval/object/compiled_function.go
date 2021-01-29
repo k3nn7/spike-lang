@@ -6,7 +6,9 @@ import (
 )
 
 type CompiledFunction struct {
-	Instructions code.Instructions
+	Instructions    code.Instructions
+	LocalsCount     int
+	ParametersCount int
 }
 
 func (function *CompiledFunction) Type() ObjectType {

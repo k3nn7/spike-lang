@@ -391,12 +391,15 @@ func Test_Compiler(t *testing.T) {
 			expectedConstants: []object.Object{
 				&object.Integer{Value: 5},
 				&object.Integer{Value: 10},
-				&object.CompiledFunction{Instructions: code.NewBuilder().
-					Make(code.OpConstant, 0).
-					Make(code.OpConstant, 1).
-					Make(code.OpAdd).
-					Make(code.OpReturnValue).
-					Build(),
+				&object.CompiledFunction{
+					Instructions: code.NewBuilder().
+						Make(code.OpConstant, 0).
+						Make(code.OpConstant, 1).
+						Make(code.OpAdd).
+						Make(code.OpReturnValue).
+						Build(),
+					LocalsCount:     0,
+					ParametersCount: 0,
 				},
 			},
 			expectedInstructions: code.NewBuilder().
@@ -409,12 +412,15 @@ func Test_Compiler(t *testing.T) {
 			expectedConstants: []object.Object{
 				&object.Integer{Value: 5},
 				&object.Integer{Value: 10},
-				&object.CompiledFunction{Instructions: code.NewBuilder().
-					Make(code.OpConstant, 0).
-					Make(code.OpConstant, 1).
-					Make(code.OpAdd).
-					Make(code.OpReturnValue).
-					Build(),
+				&object.CompiledFunction{
+					Instructions: code.NewBuilder().
+						Make(code.OpConstant, 0).
+						Make(code.OpConstant, 1).
+						Make(code.OpAdd).
+						Make(code.OpReturnValue).
+						Build(),
+					LocalsCount:     0,
+					ParametersCount: 0,
 				},
 			},
 			expectedInstructions: code.NewBuilder().
@@ -427,12 +433,15 @@ func Test_Compiler(t *testing.T) {
 			expectedConstants: []object.Object{
 				&object.Integer{Value: 1},
 				&object.Integer{Value: 2},
-				&object.CompiledFunction{Instructions: code.NewBuilder().
-					Make(code.OpConstant, 0).
-					Make(code.OpPop).
-					Make(code.OpConstant, 1).
-					Make(code.OpReturnValue).
-					Build(),
+				&object.CompiledFunction{
+					Instructions: code.NewBuilder().
+						Make(code.OpConstant, 0).
+						Make(code.OpPop).
+						Make(code.OpConstant, 1).
+						Make(code.OpReturnValue).
+						Build(),
+					LocalsCount:     0,
+					ParametersCount: 0,
 				},
 			},
 			expectedInstructions: code.NewBuilder().
@@ -443,9 +452,12 @@ func Test_Compiler(t *testing.T) {
 		{
 			code: `fn () { }`,
 			expectedConstants: []object.Object{
-				&object.CompiledFunction{Instructions: code.NewBuilder().
-					Make(code.OpReturn).
-					Build(),
+				&object.CompiledFunction{
+					Instructions: code.NewBuilder().
+						Make(code.OpReturn).
+						Build(),
+					LocalsCount:     0,
+					ParametersCount: 0,
 				},
 			},
 			expectedInstructions: code.NewBuilder().
@@ -457,15 +469,18 @@ func Test_Compiler(t *testing.T) {
 			code: `fn() { 24 } ()`,
 			expectedConstants: []object.Object{
 				&object.Integer{Value: 24},
-				&object.CompiledFunction{Instructions: code.NewBuilder().
-					Make(code.OpConstant, 0).
-					Make(code.OpReturnValue).
-					Build(),
+				&object.CompiledFunction{
+					Instructions: code.NewBuilder().
+						Make(code.OpConstant, 0).
+						Make(code.OpReturnValue).
+						Build(),
+					LocalsCount:     0,
+					ParametersCount: 0,
 				},
 			},
 			expectedInstructions: code.NewBuilder().
 				Make(code.OpConstant, 1).
-				Make(code.OpCall).
+				Make(code.OpCall, 0).
 				Make(code.OpPop).
 				Build(),
 		},
@@ -473,17 +488,112 @@ func Test_Compiler(t *testing.T) {
 			code: `let f = fn() { 24 }; f()`,
 			expectedConstants: []object.Object{
 				&object.Integer{Value: 24},
-				&object.CompiledFunction{Instructions: code.NewBuilder().
-					Make(code.OpConstant, 0).
-					Make(code.OpReturnValue).
-					Build(),
+				&object.CompiledFunction{
+					Instructions: code.NewBuilder().
+						Make(code.OpConstant, 0).
+						Make(code.OpReturnValue).
+						Build(),
+					LocalsCount:     0,
+					ParametersCount: 0,
 				},
 			},
 			expectedInstructions: code.NewBuilder().
 				Make(code.OpConstant, 1).
 				Make(code.OpSetGlobal, 0).
 				Make(code.OpGetGlobal, 0).
-				Make(code.OpCall).
+				Make(code.OpCall, 0).
+				Make(code.OpPop).
+				Build(),
+		},
+		{
+			code: `let a = 55; fn() { a }`,
+			expectedConstants: []object.Object{
+				&object.Integer{Value: 55},
+				&object.CompiledFunction{
+					Instructions: code.NewBuilder().
+						Make(code.OpGetGlobal, 0).
+						Make(code.OpReturnValue).
+						Build(),
+					LocalsCount:     0,
+					ParametersCount: 0,
+				},
+			},
+			expectedInstructions: code.NewBuilder().
+				Make(code.OpConstant, 0).
+				Make(code.OpSetGlobal, 0).
+				Make(code.OpConstant, 1).
+				Make(code.OpPop).
+				Build(),
+		},
+		{
+			code: `fn() { let a = 55; return a; }`,
+			expectedConstants: []object.Object{
+				&object.Integer{Value: 55},
+				&object.CompiledFunction{
+					Instructions: code.NewBuilder().
+						Make(code.OpConstant, 0).
+						Make(code.OpSetLocal, 0).
+						Make(code.OpGetLocal, 0).
+						Make(code.OpReturnValue).
+						Build(),
+					LocalsCount:     1,
+					ParametersCount: 0,
+				},
+			},
+			expectedInstructions: code.NewBuilder().
+				Make(code.OpConstant, 1).
+				Make(code.OpPop).
+				Build(),
+		},
+		{
+			code: `let f = fn(a) { a }; f(24);`,
+			expectedConstants: []object.Object{
+				&object.CompiledFunction{
+					Instructions: code.NewBuilder().
+						Make(code.OpGetLocal, 0).
+						Make(code.OpReturnValue).
+						Build(),
+					LocalsCount:     1,
+					ParametersCount: 1,
+				},
+				&object.Integer{Value: 24},
+			},
+			expectedInstructions: code.NewBuilder().
+				Make(code.OpConstant, 0).
+				Make(code.OpSetGlobal, 0).
+				Make(code.OpGetGlobal, 0).
+				Make(code.OpConstant, 1).
+				Make(code.OpCall, 1).
+				Make(code.OpPop).
+				Build(),
+		},
+		{
+			code: `let f = fn(a, b, c) { a; b; c; }; f(2, 4, 6);`,
+			expectedConstants: []object.Object{
+				&object.CompiledFunction{
+					Instructions: code.NewBuilder().
+						Make(code.OpGetLocal, 0).
+						Make(code.OpPop).
+						Make(code.OpGetLocal, 1).
+						Make(code.OpPop).
+						Make(code.OpGetLocal, 2).
+						Make(code.OpReturnValue).
+						Build(),
+					LocalsCount:     3,
+					ParametersCount: 3,
+				},
+				&object.Integer{Value: 2},
+				&object.Integer{Value: 4},
+				&object.Integer{Value: 6},
+			},
+			expectedInstructions: code.NewBuilder().
+				Make(code.OpConstant, 0).
+				Make(code.OpSetGlobal, 0).
+				Make(code.OpGetGlobal, 0).
+				Make(code.OpConstant, 1).
+				Make(code.OpConstant, 2).
+				Make(code.OpConstant, 3).
+				Make(code.OpCall, 3).
 				Make(code.OpPop).
 				Build(),
 		},

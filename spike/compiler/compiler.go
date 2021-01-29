@@ -204,7 +204,11 @@ func (compiler *Compiler) Compile(node ast.Node) error {
 		}
 
 		symbol := compiler.symbolTable.Define(node.Name.Value)
-		compiler.emit(code.OpSetGlobal, symbol.Index)
+		if symbol.SymbolScope == GlobalScope {
+			compiler.emit(code.OpSetGlobal, symbol.Index)
+		} else {
+			compiler.emit(code.OpSetLocal, symbol.Index)
+		}
 
 	case *ast.Identifier:
 		symbol, ok := compiler.symbolTable.Resolve(node.Value)
@@ -212,7 +216,11 @@ func (compiler *Compiler) Compile(node ast.Node) error {
 			return errors.Errorf("unable to resolve identifier: %s", node.Value)
 		}
 
-		compiler.emit(code.OpGetGlobal, symbol.Index)
+		if symbol.SymbolScope == GlobalScope {
+			compiler.emit(code.OpGetGlobal, symbol.Index)
+		} else {
+			compiler.emit(code.OpGetLocal, symbol.Index)
+		}
 
 	case *ast.Array:
 		for _, element := range node.Elements {
@@ -263,6 +271,10 @@ func (compiler *Compiler) Compile(node ast.Node) error {
 	case *ast.FunctionExpression:
 		compiler.enterScope()
 
+		for _, parameter := range node.Parameters {
+			compiler.symbolTable.Define(parameter.Value)
+		}
+
 		err := compiler.Compile(node.Body)
 		if err != nil {
 			return err
@@ -279,8 +291,13 @@ func (compiler *Compiler) Compile(node ast.Node) error {
 			compiler.emit(code.OpReturn)
 		}
 
+		localCount := compiler.symbolTable.numDefinitions
 		instructions := compiler.leaveScope()
-		compiledFunction := &object.CompiledFunction{Instructions: instructions}
+		compiledFunction := &object.CompiledFunction{
+			Instructions:    instructions,
+			LocalsCount:     localCount,
+			ParametersCount: len(node.Parameters),
+		}
 		compiler.emit(code.OpConstant, compiler.addConstant(compiledFunction))
 
 	case *ast.ReturnStatement:
@@ -297,7 +314,14 @@ func (compiler *Compiler) Compile(node ast.Node) error {
 			return err
 		}
 
-		compiler.emit(code.OpCall)
+		for _, argument := range node.Arguments {
+			err = compiler.Compile(argument)
+			if err != nil {
+				return err
+			}
+		}
+
+		compiler.emit(code.OpCall, len(node.Arguments))
 	}
 
 	return nil
@@ -373,11 +397,13 @@ func (compiler *Compiler) enterScope() {
 		previousInstruction: EmittedInstruction{},
 	}
 
+	compiler.symbolTable = NewEnclosedSymbolTable(compiler.symbolTable)
 	compiler.scopes = append(compiler.scopes, scope)
 	compiler.scopeIndex++
 }
 
 func (compiler *Compiler) leaveScope() code.Instructions {
+	compiler.symbolTable = compiler.symbolTable.Outer
 	instructions := compiler.scopes[compiler.scopeIndex].instructions
 	compiler.scopes = compiler.scopes[:len(compiler.scopes)-1]
 	compiler.scopeIndex--
