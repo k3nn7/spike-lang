@@ -12,6 +12,6 @@ func (r *Return) Inspect() string {
 	return r.Value.Inspect()
 }
 
-func (r *Return) Equal(other Object) bool {
+func (r *Return) Equal(Object) bool {
 	return false
 }

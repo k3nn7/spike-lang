@@ -2,8 +2,8 @@ package vm
 
 import (
 	"spike-interpreter-go/spike/compiler"
-	"spike-interpreter-go/spike/eval/object"
 	"spike-interpreter-go/spike/lexer"
+	"spike-interpreter-go/spike/object"
 	"spike-interpreter-go/spike/parser"
 	"strings"
 	"testing"

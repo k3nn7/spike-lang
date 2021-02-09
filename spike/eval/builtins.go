@@ -3,7 +3,7 @@ package eval
 import (
 	"errors"
 	"fmt"
-	"spike-interpreter-go/spike/eval/object"
+	"spike-interpreter-go/spike/object"
 )
 
 var builtins = map[string]*object.BuiltinFunction{

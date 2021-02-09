@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"sort"
 	"spike-interpreter-go/spike/code"
-	"spike-interpreter-go/spike/eval/object"
+	"spike-interpreter-go/spike/object"
 	"spike-interpreter-go/spike/parser/ast"
 
 	"github.com/pkg/errors"

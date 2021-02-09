@@ -4,7 +4,7 @@ import (
 	"encoding/binary"
 	"spike-interpreter-go/spike/code"
 	"spike-interpreter-go/spike/compiler"
-	"spike-interpreter-go/spike/eval/object"
+	"spike-interpreter-go/spike/object"
 
 	"github.com/pkg/errors"
 )

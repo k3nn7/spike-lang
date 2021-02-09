@@ -4,8 +4,8 @@ import (
 	"fmt"
 	"os"
 	"spike-interpreter-go/spike/eval"
-	"spike-interpreter-go/spike/eval/object"
 	"spike-interpreter-go/spike/lexer"
+	"spike-interpreter-go/spike/object"
 	"spike-interpreter-go/spike/parser"
 )
 

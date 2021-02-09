@@ -2,7 +2,7 @@ package vm
 
 import (
 	"spike-interpreter-go/spike/code"
-	"spike-interpreter-go/spike/eval/object"
+	"spike-interpreter-go/spike/object"
 )
 
 type Frame struct {

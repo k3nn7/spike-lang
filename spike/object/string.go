@@ -28,7 +28,10 @@ func (str *String) Equal(other Object) bool {
 
 func (str *String) GetHashKey() HashKey {
 	h := fnv.New64a()
-	h.Write([]byte(str.Value))
+	_, err := h.Write([]byte(str.Value))
+	if err != nil {
+		panic(err)
+	}
 
 	return HashKey{
 		Type:  StringType,

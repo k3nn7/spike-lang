@@ -1,8 +1,8 @@
 package eval
 
 import (
-	"spike-interpreter-go/spike/eval/object"
 	"spike-interpreter-go/spike/lexer"
+	"spike-interpreter-go/spike/object"
 	"spike-interpreter-go/spike/parser"
 	"spike-interpreter-go/spike/parser/ast"
 	"strings"

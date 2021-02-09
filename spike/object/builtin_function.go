@@ -15,6 +15,6 @@ func (builtin *BuiltinFunction) Inspect() string {
 	return fmt.Sprintf("builtin(%s)", builtin.Name)
 }
 
-func (builtin *BuiltinFunction) Equal(other Object) bool {
+func (builtin *BuiltinFunction) Equal(Object) bool {
 	panic("implement me")
 }
