@@ -240,24 +240,38 @@ func (vm *VM) Run() error {
 
 		case code.OpCall:
 			argumentsCount := int(instructions[ip+1])
-
 			vm.currentFrame().ip++
-			fn, ok := vm.stack[vm.sp-1-argumentsCount].(*object.CompiledFunction)
-			if !ok {
-				return errors.Errorf("Calling non-function %T", vm.stack[vm.sp-1])
-			}
+			fn := vm.stack[vm.sp-1-argumentsCount]
 
-			if fn.ParametersCount != argumentsCount {
-				return errors.Errorf(
-					"mismatched number of function call arguments. Expected %d, got %d",
-					fn.ParametersCount,
-					argumentsCount,
-				)
-			}
+			switch fn := fn.(type) {
+			case *object.CompiledFunction:
+				if fn.ParametersCount != argumentsCount {
+					return errors.Errorf(
+						"mismatched number of function call arguments. Expected %d, got %d",
+						fn.ParametersCount,
+						argumentsCount,
+					)
+				}
 
-			frame := NewFrame(fn, vm.sp-argumentsCount)
-			vm.pushFrame(frame)
-			vm.sp = frame.basePointer + fn.LocalsCount
+				frame := NewFrame(fn, vm.sp-argumentsCount)
+				vm.pushFrame(frame)
+				vm.sp = frame.basePointer + fn.LocalsCount
+
+			case *object.BuiltinFunction:
+				args := vm.stack[vm.sp-argumentsCount : vm.sp]
+
+				result, err := fn.Function(args...)
+				if err != nil {
+					return err
+				}
+				err = vm.push(result)
+				if err != nil {
+					return err
+				}
+
+			default:
+				return errors.Errorf("Calling non-function %T", fn)
+			}
 
 		case code.OpReturnValue:
 			returnValue := vm.pop()
@@ -291,6 +305,17 @@ func (vm *VM) Run() error {
 
 			value := vm.stack[vm.currentFrame().basePointer+index]
 			err := vm.push(value)
+			if err != nil {
+				return err
+			}
+
+		case code.OpGetBuiltin:
+			index := int(instructions[ip+1])
+			vm.currentFrame().ip++
+
+			definition := object.Builtins[index]
+
+			err := vm.push(definition)
 			if err != nil {
 				return err
 			}

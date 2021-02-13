@@ -245,6 +245,14 @@ func Test_Run(t *testing.T) {
 			f(555, 222);`,
 			expectedStackTop: &object.Integer{Value: 777},
 		},
+		{
+			code:             `len("abc")`,
+			expectedStackTop: &object.Integer{Value: 3},
+		},
+		{
+			code:             `len([1, 2, 3, 4])`,
+			expectedStackTop: &object.Integer{Value: 4},
+		},
 	}
 
 	for _, testCase := range testCases {
