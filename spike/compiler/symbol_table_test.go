@@ -96,3 +96,20 @@ func Test_SymbolTable_ResolveLocal(t *testing.T) {
 		Index:       1,
 	}, symbol)
 }
+
+func Test_SymbolTable_resolveBuiltin(t *testing.T) {
+	global := NewSymbolTable()
+	global.Define("a")
+	global.DefineBuiltin(0, "b")
+
+	local := NewEnclosedSymbolTable(global)
+	local.Define("c")
+
+	symbol, ok := local.Resolve("b")
+	assert.True(t, ok)
+	assert.Equal(t, Symbol{
+		Name:        "b",
+		SymbolScope: BuiltinScope,
+		Index:       0,
+	}, symbol)
+}

@@ -597,6 +597,16 @@ func Test_Compiler(t *testing.T) {
 				Make(code.OpPop).
 				Build(),
 		},
+		{
+			code:              `len([])`,
+			expectedConstants: []object.Object{},
+			expectedInstructions: code.NewBuilder().
+				Make(code.OpGetBuiltin, 0).
+				Make(code.OpArray, 0).
+				Make(code.OpCall, 1).
+				Make(code.OpPop).
+				Build(),
+		},
 	}
 
 	for _, testCase := range testCases {

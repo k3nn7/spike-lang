@@ -36,9 +36,14 @@ func New() *Compiler {
 		previousInstruction: EmittedInstruction{},
 	}
 
+	symbolTable := NewSymbolTable()
+	for i, builtin := range object.Builtins {
+		symbolTable.DefineBuiltin(i, builtin.Name)
+	}
+
 	return &Compiler{
 		constants:   []object.Object{},
-		symbolTable: NewSymbolTable(),
+		symbolTable: symbolTable,
 		scopes:      []CompilationScope{mainScope},
 		scopeIndex:  0,
 	}
@@ -218,6 +223,8 @@ func (compiler *Compiler) Compile(node ast.Node) error {
 
 		if symbol.SymbolScope == GlobalScope {
 			compiler.emit(code.OpGetGlobal, symbol.Index)
+		} else if symbol.SymbolScope == BuiltinScope {
+			compiler.emit(code.OpGetBuiltin, symbol.Index)
 		} else {
 			compiler.emit(code.OpGetLocal, symbol.Index)
 		}
