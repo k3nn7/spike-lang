@@ -305,7 +305,8 @@ func (compiler *Compiler) Compile(node ast.Node) error {
 			LocalsCount:     localCount,
 			ParametersCount: len(node.Parameters),
 		}
-		compiler.emit(code.OpConstant, compiler.addConstant(compiledFunction))
+		index := compiler.addConstant(compiledFunction)
+		compiler.emit(code.OpClosure, index, 0)
 
 	case *ast.ReturnStatement:
 		err := compiler.Compile(node.Result)

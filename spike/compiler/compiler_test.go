@@ -403,7 +403,7 @@ func Test_Compiler(t *testing.T) {
 				},
 			},
 			expectedInstructions: code.NewBuilder().
-				Make(code.OpConstant, 2).
+				Make(code.OpClosure, 2, 0).
 				Make(code.OpPop).
 				Build(),
 		},
@@ -424,7 +424,7 @@ func Test_Compiler(t *testing.T) {
 				},
 			},
 			expectedInstructions: code.NewBuilder().
-				Make(code.OpConstant, 2).
+				Make(code.OpClosure, 2, 0).
 				Make(code.OpPop).
 				Build(),
 		},
@@ -445,7 +445,7 @@ func Test_Compiler(t *testing.T) {
 				},
 			},
 			expectedInstructions: code.NewBuilder().
-				Make(code.OpConstant, 2).
+				Make(code.OpClosure, 2, 0).
 				Make(code.OpPop).
 				Build(),
 		},
@@ -461,7 +461,7 @@ func Test_Compiler(t *testing.T) {
 				},
 			},
 			expectedInstructions: code.NewBuilder().
-				Make(code.OpConstant, 0).
+				Make(code.OpClosure, 0, 0).
 				Make(code.OpPop).
 				Build(),
 		},
@@ -479,7 +479,7 @@ func Test_Compiler(t *testing.T) {
 				},
 			},
 			expectedInstructions: code.NewBuilder().
-				Make(code.OpConstant, 1).
+				Make(code.OpClosure, 1, 0).
 				Make(code.OpCall, 0).
 				Make(code.OpPop).
 				Build(),
@@ -498,7 +498,7 @@ func Test_Compiler(t *testing.T) {
 				},
 			},
 			expectedInstructions: code.NewBuilder().
-				Make(code.OpConstant, 1).
+				Make(code.OpClosure, 1, 0).
 				Make(code.OpSetGlobal, 0).
 				Make(code.OpGetGlobal, 0).
 				Make(code.OpCall, 0).
@@ -521,7 +521,7 @@ func Test_Compiler(t *testing.T) {
 			expectedInstructions: code.NewBuilder().
 				Make(code.OpConstant, 0).
 				Make(code.OpSetGlobal, 0).
-				Make(code.OpConstant, 1).
+				Make(code.OpClosure, 1, 0).
 				Make(code.OpPop).
 				Build(),
 		},
@@ -541,7 +541,7 @@ func Test_Compiler(t *testing.T) {
 				},
 			},
 			expectedInstructions: code.NewBuilder().
-				Make(code.OpConstant, 1).
+				Make(code.OpClosure, 1, 0).
 				Make(code.OpPop).
 				Build(),
 		},
@@ -559,7 +559,7 @@ func Test_Compiler(t *testing.T) {
 				&object.Integer{Value: 24},
 			},
 			expectedInstructions: code.NewBuilder().
-				Make(code.OpConstant, 0).
+				Make(code.OpClosure, 0, 0).
 				Make(code.OpSetGlobal, 0).
 				Make(code.OpGetGlobal, 0).
 				Make(code.OpConstant, 1).
@@ -587,7 +587,7 @@ func Test_Compiler(t *testing.T) {
 				&object.Integer{Value: 6},
 			},
 			expectedInstructions: code.NewBuilder().
-				Make(code.OpConstant, 0).
+				Make(code.OpClosure, 0, 0).
 				Make(code.OpSetGlobal, 0).
 				Make(code.OpGetGlobal, 0).
 				Make(code.OpConstant, 1).
