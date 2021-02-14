@@ -12,7 +12,8 @@ const (
 	BuiltinFunctionType  ObjectType = "builtinFunction"
 	ArrayType            ObjectType = "array"
 	HashType             ObjectType = "hash"
-	CompiledFunctionType ObjectType = "c ompiledFunction"
+	CompiledFunctionType ObjectType = "compiledFunction"
+	ClosureType          ObjectType = "closure"
 )
 
 type Ordering int8
