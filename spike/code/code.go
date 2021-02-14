@@ -39,6 +39,7 @@ const (
 	OpSetLocal
 	OpGetLocal
 	OpGetBuiltin
+	OpClosure
 )
 
 type Definition struct {
@@ -155,6 +156,10 @@ var definitions = map[Opcode]*Definition{
 		Name:          "OpGetBuiltin",
 		OperandWidths: []int{1 * Byte},
 	},
+	OpClosure: {
+		Name:          "OpClosure",
+		OperandWidths: []int{2 * Byte, 1 * Byte},
+	},
 }
 
 type Instructions []byte
@@ -201,6 +206,8 @@ func formatInstruction(definition *Definition, operands []int) string {
 		return fmt.Sprintf("%s", definition.Name)
 	case 1:
 		return fmt.Sprintf("%s %d", definition.Name, operands[0])
+	case 2:
+		return fmt.Sprintf("%s %d %d", definition.Name, operands[0], operands[1])
 	}
 
 	return fmt.Sprintf("ERROR: unhandled operandCount for %s\n", definition.Name)
