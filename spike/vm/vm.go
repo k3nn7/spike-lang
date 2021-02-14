@@ -34,7 +34,11 @@ type VM struct {
 
 func New(bytecode *compiler.Bytecode) *VM {
 	mainFn := &object.CompiledFunction{Instructions: bytecode.Instructions}
-	mainFrame := NewFrame(mainFn, 0)
+	mainClosure := &object.Closure{
+		Function:      mainFn,
+		FreeVariables: nil,
+	}
+	mainFrame := NewFrame(mainClosure, 0)
 
 	frames := make([]*Frame, MaxFrames)
 	frames[0] = mainFrame
@@ -241,26 +245,26 @@ func (vm *VM) Run() error {
 		case code.OpCall:
 			argumentsCount := int(instructions[ip+1])
 			vm.currentFrame().ip++
-			fn := vm.stack[vm.sp-1-argumentsCount]
+			callee := vm.stack[vm.sp-1-argumentsCount]
 
-			switch fn := fn.(type) {
-			case *object.CompiledFunction:
-				if fn.ParametersCount != argumentsCount {
+			switch callee := callee.(type) {
+			case *object.Closure:
+				if callee.Function.ParametersCount != argumentsCount {
 					return errors.Errorf(
 						"mismatched number of function call arguments. Expected %d, got %d",
-						fn.ParametersCount,
+						callee.Function.ParametersCount,
 						argumentsCount,
 					)
 				}
 
-				frame := NewFrame(fn, vm.sp-argumentsCount)
+				frame := NewFrame(callee, vm.sp-argumentsCount)
 				vm.pushFrame(frame)
-				vm.sp = frame.basePointer + fn.LocalsCount
+				vm.sp = frame.basePointer + callee.Function.LocalsCount
 
 			case *object.BuiltinFunction:
 				args := vm.stack[vm.sp-argumentsCount : vm.sp]
 
-				result, err := fn.Function(args...)
+				result, err := callee.Function(args...)
 				if err != nil {
 					return err
 				}
@@ -270,7 +274,7 @@ func (vm *VM) Run() error {
 				}
 
 			default:
-				return errors.Errorf("Calling non-function %T", fn)
+				return errors.Errorf("Calling non-function %T", callee)
 			}
 
 		case code.OpReturnValue:
@@ -316,6 +320,25 @@ func (vm *VM) Run() error {
 			definition := object.Builtins[index]
 
 			err := vm.push(definition)
+			if err != nil {
+				return err
+			}
+
+		case code.OpClosure:
+			functionIndex := int(binary.BigEndian.Uint16(instructions[ip+1:]))
+			_ = int(instructions[ip+3])
+			vm.currentFrame().ip += 3
+
+			function, ok := vm.constants[functionIndex].(*object.CompiledFunction)
+			if !ok {
+				return errors.Errorf("%+v is not a function", vm.constants[functionIndex])
+			}
+
+			closure := &object.Closure{
+				Function:      function,
+				FreeVariables: nil,
+			}
+			err := vm.push(closure)
 			if err != nil {
 				return err
 			}
