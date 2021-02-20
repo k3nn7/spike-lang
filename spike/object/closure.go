@@ -4,7 +4,7 @@ import "fmt"
 
 type Closure struct {
 	Function      *CompiledFunction
-	FreeVariables Object
+	FreeVariables []Object
 }
 
 func (closure *Closure) Type() ObjectType {

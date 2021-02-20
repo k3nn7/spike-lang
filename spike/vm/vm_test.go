@@ -253,6 +253,16 @@ func Test_Run(t *testing.T) {
 			code:             `len([1, 2, 3, 4])`,
 			expectedStackTop: &object.Integer{Value: 4},
 		},
+		{
+			code: `
+			let createClosure = fn (a) {
+					fn() { a; };
+				};
+			let closure = createClosure(5);
+			closure();
+			`,
+			expectedStackTop: &object.Integer{Value: 5},
+		},
 	}
 
 	for _, testCase := range testCases {

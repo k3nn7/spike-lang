@@ -326,7 +326,7 @@ func (vm *VM) Run() error {
 
 		case code.OpClosure:
 			functionIndex := int(binary.BigEndian.Uint16(instructions[ip+1:]))
-			_ = int(instructions[ip+3])
+			freeVarsCount := int(instructions[ip+3])
 			vm.currentFrame().ip += 3
 
 			function, ok := vm.constants[functionIndex].(*object.CompiledFunction)
@@ -334,11 +334,27 @@ func (vm *VM) Run() error {
 				return errors.Errorf("%+v is not a function", vm.constants[functionIndex])
 			}
 
+			freeVariables := make([]object.Object, freeVarsCount)
+			for i := 0; i < freeVarsCount; i++ {
+				freeVariables[i] = vm.stack[vm.sp-freeVarsCount+i]
+			}
+			vm.sp = vm.sp - freeVarsCount
+
 			closure := &object.Closure{
 				Function:      function,
-				FreeVariables: nil,
+				FreeVariables: freeVariables,
 			}
 			err := vm.push(closure)
+			if err != nil {
+				return err
+			}
+
+		case code.OpGetFreeVar:
+			freeIndex := int(instructions[ip+1])
+			vm.currentFrame().ip++
+
+			currentClosure := vm.currentFrame().closure
+			err := vm.push(currentClosure.FreeVariables[freeIndex])
 			if err != nil {
 				return err
 			}
