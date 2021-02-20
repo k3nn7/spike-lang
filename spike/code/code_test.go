@@ -65,6 +65,7 @@ func Test_Instructions_String(t *testing.T) {
 		Make(OpGetLocal, 255).
 		Make(OpGetBuiltin, 255).
 		Make(OpClosure, 65535, 255).
+		Make(OpGetFreeVar, 255).
 		Build()
 
 	expectedOutput := `0000 OpConstant 2
@@ -91,6 +92,7 @@ func Test_Instructions_String(t *testing.T) {
 0039 OpGetLocal 255
 0041 OpGetBuiltin 255
 0043 OpClosure 65535 255
+0047 OpGetFreeVar 255
 `
 
 	assert.Equal(t, expectedOutput, instructions.String())

@@ -221,13 +221,7 @@ func (compiler *Compiler) Compile(node ast.Node) error {
 			return errors.Errorf("unable to resolve identifier: %s", node.Value)
 		}
 
-		if symbol.SymbolScope == GlobalScope {
-			compiler.emit(code.OpGetGlobal, symbol.Index)
-		} else if symbol.SymbolScope == BuiltinScope {
-			compiler.emit(code.OpGetBuiltin, symbol.Index)
-		} else {
-			compiler.emit(code.OpGetLocal, symbol.Index)
-		}
+		compiler.loadSymbol(symbol)
 
 	case *ast.Array:
 		for _, element := range node.Elements {
@@ -298,15 +292,21 @@ func (compiler *Compiler) Compile(node ast.Node) error {
 			compiler.emit(code.OpReturn)
 		}
 
+		freeSymbols := compiler.symbolTable.FreeSymbols
 		localCount := compiler.symbolTable.numDefinitions
 		instructions := compiler.leaveScope()
+
+		for _, symbol := range freeSymbols {
+			compiler.loadSymbol(symbol)
+		}
+
 		compiledFunction := &object.CompiledFunction{
 			Instructions:    instructions,
 			LocalsCount:     localCount,
 			ParametersCount: len(node.Parameters),
 		}
 		index := compiler.addConstant(compiledFunction)
-		compiler.emit(code.OpClosure, index, 0)
+		compiler.emit(code.OpClosure, index, len(freeSymbols))
 
 	case *ast.ReturnStatement:
 		err := compiler.Compile(node.Result)
@@ -333,6 +333,19 @@ func (compiler *Compiler) Compile(node ast.Node) error {
 	}
 
 	return nil
+}
+
+func (compiler *Compiler) loadSymbol(symbol Symbol) {
+	switch symbol.SymbolScope {
+	case GlobalScope:
+		compiler.emit(code.OpGetGlobal, symbol.Index)
+	case BuiltinScope:
+		compiler.emit(code.OpGetBuiltin, symbol.Index)
+	case FreeScope:
+		compiler.emit(code.OpGetFreeVar, symbol.Index)
+	default:
+		compiler.emit(code.OpGetLocal, symbol.Index)
+	}
 }
 
 func (compiler *Compiler) addConstant(obj object.Object) int {

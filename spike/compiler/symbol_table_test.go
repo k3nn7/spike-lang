@@ -113,3 +113,33 @@ func Test_SymbolTable_resolveBuiltin(t *testing.T) {
 		Index:       0,
 	}, symbol)
 }
+
+func Test_SymbolTable_resolveFreeVars(t *testing.T) {
+	global := NewSymbolTable()
+	global.Define("a")
+
+	local1 := NewEnclosedSymbolTable(global)
+	local1.Define("b")
+
+	local2 := NewEnclosedSymbolTable(local1)
+	local2.Define("c")
+
+	symbol, ok := local2.Resolve("b")
+	assert.True(t, ok)
+	assert.Equal(t, Symbol{
+		Name:        "b",
+		SymbolScope: FreeScope,
+		Index:       0,
+	}, symbol)
+
+	_, ok = local2.Resolve("d")
+	assert.False(t, ok)
+
+	assert.Equal(t, []Symbol{
+		{
+			Name:        "b",
+			SymbolScope: LocalScope,
+			Index:       0,
+		},
+	}, local2.FreeSymbols)
+}

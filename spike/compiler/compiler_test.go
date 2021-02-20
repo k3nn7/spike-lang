@@ -607,6 +607,155 @@ func Test_Compiler(t *testing.T) {
 				Make(code.OpPop).
 				Build(),
 		},
+		{
+			code: `
+				fn (a) {
+					fn (b) {
+						a + b
+					}
+				}`,
+			expectedConstants: []object.Object{
+				&object.CompiledFunction{
+					Instructions: code.NewBuilder().
+						Make(code.OpGetFreeVar, 0).
+						Make(code.OpGetLocal, 0).
+						Make(code.OpAdd).
+						Make(code.OpReturnValue).
+						Build(),
+					LocalsCount:     1,
+					ParametersCount: 1,
+				},
+				&object.CompiledFunction{
+					Instructions: code.NewBuilder().
+						Make(code.OpGetLocal, 0).
+						Make(code.OpClosure, 0, 1).
+						Make(code.OpReturnValue).
+						Build(),
+					LocalsCount:     1,
+					ParametersCount: 1,
+				},
+			},
+			expectedInstructions: code.NewBuilder().
+				Make(code.OpClosure, 1, 0).
+				Make(code.OpPop).
+				Build(),
+		},
+		{
+			code: `
+				fn (a) {
+					fn (b) {
+						fn (c) {
+							a + b + c
+						}
+					}
+				}`,
+			expectedConstants: []object.Object{
+				&object.CompiledFunction{
+					Instructions: code.NewBuilder().
+						Make(code.OpGetFreeVar, 0).
+						Make(code.OpGetFreeVar, 1).
+						Make(code.OpAdd).
+						Make(code.OpGetLocal, 0).
+						Make(code.OpAdd).
+						Make(code.OpReturnValue).
+						Build(),
+					LocalsCount:     1,
+					ParametersCount: 1,
+				},
+				&object.CompiledFunction{
+					Instructions: code.NewBuilder().
+						Make(code.OpGetFreeVar, 0).
+						Make(code.OpGetLocal, 0).
+						Make(code.OpClosure, 0, 2).
+						Make(code.OpReturnValue).
+						Build(),
+					LocalsCount:     1,
+					ParametersCount: 1,
+				},
+				&object.CompiledFunction{
+					Instructions: code.NewBuilder().
+						Make(code.OpGetLocal, 0).
+						Make(code.OpClosure, 1, 1).
+						Make(code.OpReturnValue).
+						Build(),
+					LocalsCount:     1,
+					ParametersCount: 1,
+				},
+			},
+			expectedInstructions: code.NewBuilder().
+				Make(code.OpClosure, 2, 0).
+				Make(code.OpPop).
+				Build(),
+		},
+		{
+			code: `
+				let global = 55;
+
+				fn () {
+					let a = 66;
+
+					fn () {
+						let b = 77;
+
+						fn () {
+							let c = 88;
+							
+							return global + a + b + c;
+						}
+					}
+				}`,
+			expectedConstants: []object.Object{
+				&object.Integer{Value: 55},
+				&object.Integer{Value: 66},
+				&object.Integer{Value: 77},
+				&object.Integer{Value: 88},
+				&object.CompiledFunction{
+					Instructions: code.NewBuilder().
+						Make(code.OpConstant, 3).
+						Make(code.OpSetLocal, 0).
+						Make(code.OpGetGlobal, 0).
+						Make(code.OpGetFreeVar, 0).
+						Make(code.OpAdd).
+						Make(code.OpGetFreeVar, 1).
+						Make(code.OpAdd).
+						Make(code.OpGetLocal, 0).
+						Make(code.OpAdd).
+						Make(code.OpReturnValue).
+						Build(),
+					LocalsCount:     1,
+					ParametersCount: 0,
+				},
+				&object.CompiledFunction{
+					Instructions: code.NewBuilder().
+						Make(code.OpConstant, 2).
+						Make(code.OpSetLocal, 0).
+						Make(code.OpGetFreeVar, 0).
+						Make(code.OpGetLocal, 0).
+						Make(code.OpClosure, 4, 2).
+						Make(code.OpReturnValue).
+						Build(),
+					LocalsCount:     1,
+					ParametersCount: 0,
+				},
+				&object.CompiledFunction{
+					Instructions: code.NewBuilder().
+						Make(code.OpConstant, 1).
+						Make(code.OpSetLocal, 0).
+						Make(code.OpGetLocal, 0).
+						Make(code.OpClosure, 5, 1).
+						Make(code.OpReturnValue).
+						Build(),
+					LocalsCount:     1,
+					ParametersCount: 0,
+				},
+			},
+			expectedInstructions: code.NewBuilder().
+				Make(code.OpConstant, 0).
+				Make(code.OpSetGlobal, 0).
+				Make(code.OpClosure, 6, 0).
+				Make(code.OpPop).
+				Build(),
+		},
 	}
 
 	for _, testCase := range testCases {

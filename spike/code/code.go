@@ -40,6 +40,7 @@ const (
 	OpGetLocal
 	OpGetBuiltin
 	OpClosure
+	OpGetFreeVar
 )
 
 type Definition struct {
@@ -159,6 +160,10 @@ var definitions = map[Opcode]*Definition{
 	OpClosure: {
 		Name:          "OpClosure",
 		OperandWidths: []int{2 * Byte, 1 * Byte},
+	},
+	OpGetFreeVar: {
+		Name:          "OpGetFreeVar",
+		OperandWidths: []int{1 * Byte},
 	},
 }
 

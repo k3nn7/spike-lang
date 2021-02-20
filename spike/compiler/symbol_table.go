@@ -6,6 +6,7 @@ const (
 	BuiltinScope SymbolScope = "BUILTIN"
 	GlobalScope  SymbolScope = "GLOBAL"
 	LocalScope   SymbolScope = "LOCAL"
+	FreeScope    SymbolScope = "FREE"
 )
 
 type Symbol struct {
@@ -16,6 +17,7 @@ type Symbol struct {
 
 type SymbolTable struct {
 	Outer          *SymbolTable
+	FreeSymbols    []Symbol
 	store          map[string]Symbol
 	numDefinitions int
 }
@@ -57,8 +59,31 @@ func (symbolTable *SymbolTable) Resolve(name string) (Symbol, bool) {
 	symbol, ok := symbolTable.store[name]
 
 	if !ok && symbolTable.Outer != nil {
-		return symbolTable.Outer.Resolve(name)
+		symbol, ok = symbolTable.Outer.Resolve(name)
+		if !ok {
+			return symbol, ok
+		}
+
+		if symbol.SymbolScope == GlobalScope || symbol.SymbolScope == BuiltinScope {
+			return symbol, ok
+		}
+
+		free := symbolTable.defineFree(symbol)
+		return free, true
 	}
 
 	return symbol, ok
+}
+
+func (symbolTable *SymbolTable) defineFree(original Symbol) Symbol {
+	symbolTable.FreeSymbols = append(symbolTable.FreeSymbols, original)
+
+	symbol := Symbol{
+		Name:        original.Name,
+		SymbolScope: FreeScope,
+		Index:       len(symbolTable.FreeSymbols) - 1,
+	}
+	symbolTable.store[original.Name] = symbol
+
+	return symbol
 }
