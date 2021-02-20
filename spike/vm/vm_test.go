@@ -263,6 +263,19 @@ func Test_Run(t *testing.T) {
 			`,
 			expectedStackTop: &object.Integer{Value: 5},
 		},
+		{
+			code: `
+			let fibonacci = fn(n) {
+				if (n == 1) {
+					return 1;
+				}
+				return n + fibonacci(n - 1);
+			}
+
+			fibonacci(2);
+			`,
+			expectedStackTop: &object.Integer{Value: 3},
+		},
 	}
 
 	for _, testCase := range testCases {
